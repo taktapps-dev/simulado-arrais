@@ -653,6 +653,8 @@ const I18N_ROWS = [
 ["Ajustes", "Settings", "設定", "설정"],
 ["Modo noturno", "Night mode", "ナイトモード", "야간 모드"],
 ["Instrutor", "Instructor", "講師", "강사"],
+["Ver como instrutor", "View as instructor", "講師として表示", "강사로 보기"],
+["Voltar à minha conta", "Back to my account", "自分のアカウントに戻る", "내 계정으로 돌아가기"],
 ];
 const I18N = { en: {}, ja: {}, ko: {} };
 for (const [pt, en, ja, ko] of I18N_ROWS) { I18N.en[pt] = en; I18N.ja[pt] = ja; I18N.ko[pt] = ko; }
@@ -838,6 +840,15 @@ async function flushOutbox() {
 addEventListener("online", flushOutbox);
 
 /* ---------- área do instrutor ---------- */
+/* admin = está na tabela admins ou o e-mail está em admin_emails (vale para senha e para Google) */
+async function isAdminToken(tk) {
+  try {
+    const r = await fetch(SUPA.url + "/rest/v1/rpc/is_admin", { method: "POST", headers: supaHeaders(tk), body: "{}" });
+    if (r.ok) return (await r.json()) === true;
+    const chk = await fetch(SUPA.url + "/rest/v1/admins?select=user_id", { headers: supaHeaders(tk) });
+    return chk.ok && (await chk.json()).length > 0;
+  } catch { return false; }
+}
 let ADMIN = null; /* { token, email } só na memória: fechar a página encerra a sessão */
 function screenAdminLogin(err = "") {
   screen(() => screenAdminLogin());
@@ -854,9 +865,7 @@ function screenAdminLogin(err = "") {
       const res = await fetch(SUPA.url + "/auth/v1/token?grant_type=password", { method: "POST", headers: supaHeaders(), body: JSON.stringify({ email: email.value.trim(), password: pass.value }) });
       const j = await res.json().catch(() => ({}));
       if (!res.ok || !j.access_token) throw new Error("login");
-      const chk = await fetch(SUPA.url + "/rest/v1/admins?select=user_id", { headers: supaHeaders(j.access_token) });
-      const rows = chk.ok ? await chk.json() : [];
-      if (!rows.length) { screenAdminLogin(tr("Este usuário não é admin.")); return; }
+      if (!(await isAdminToken(j.access_token))) { screenAdminLogin(tr("Este usuário não é admin.")); return; }
       ADMIN = { token: j.access_token, email: j.user?.email || email.value.trim() };
       screenAdmin();
     } catch { screenAdminLogin(tr("E-mail ou senha incorretos.")); }
@@ -875,9 +884,7 @@ function screenAdminLogin(err = "") {
 async function adminFromSession() {
   const tk = await accessToken();
   if (!tk) return screenAdminLogin(tr("Não foi possível concluir o login com Google."));
-  const chk = await fetch(SUPA.url + "/rest/v1/admins?select=user_id", { headers: supaHeaders(tk) }).catch(() => null);
-  const rows = chk?.ok ? await chk.json() : [];
-  if (!rows.length) return screenAdminLogin(tr("Este usuário não é admin."));
+  if (!(await isAdminToken(tk))) return screenAdminLogin(tr("Este usuário não é admin."));
   ADMIN = { token: tk, email: session().user.email, google: true };
   screenAdmin();
 }
@@ -902,7 +909,9 @@ async function screenAdmin(sel = null) {
     return { ...s, topics, weakest, n: s.list.length, avg: Math.round(base.reduce((a, r) => a + r.nota, 0) / base.length),
       last: base.at(-1).nota, best: Math.max(...base.map((r) => r.nota)), at: s.list.at(-1).criado_em };
   }).sort((a, b) => a.avg - b.avg);
-  const logout = h("button", { class: "btn ghost", onclick: () => { ADMIN = null; startScreen(); } }, "Sair");
+  const logout = ADMIN.google && me()
+    ? h("button", { class: "btn ghost", onclick: () => { ADMIN = null; screenHistory(); } }, "Voltar à minha conta")
+    : h("button", { class: "btn ghost", onclick: () => { ADMIN = null; startScreen(); } }, "Sair");
   const head = h("div", { class: "row", style: "justify-content:space-between" }, h("h1", {}, "Painel do instrutor"), h("div", { class: "row" }, h("button", { class: "btn", onclick: () => screenAdmin(sel) }, "Atualizar"), logout));
   if (sel && by[sel]) {
     const s = students.find((x) => x.id === sel);
@@ -964,6 +973,7 @@ async function handleAuthRedirect() {
     if (!res.ok || !u.id) throw 0;
     const md = u.user_metadata || {};
     store.session = { ...tok, user: { id: u.id, email: u.email || "", name: (md.full_name || md.name || u.email || "").slice(0, 40) } };
+    store.session.admin = await isAdminToken(tok.access_token);
     save();
     return { intent };
   } catch { save(); return { intent, error: tr("Não foi possível concluir o login com Google.") }; }
@@ -1146,7 +1156,9 @@ function screenHistory(confirm = null) {
     LANGS.map(([code, name]) => h("button", { "aria-pressed": String(code === LANG), lang: code, "data-raw": true, onclick: () => setLang(code) }, name)));
   const darkNow = (document.documentElement.getAttribute("data-theme") || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")) === "dark";
   const install = installBanner();
-  const instructor = (CLOUD.ready && CLOUD.canEdit) || supaOn();
+  const gAdmin = p.google && s?.admin;
+  if (p.google && s && s.admin === undefined) accessToken().then((tk) => tk && isAdminToken(tk)).then((ok) => { s.admin = !!ok; save(); if (ok) screenHistory(confirm); });
+  const instructor = (CLOUD.ready && CLOUD.canEdit) || gAdmin;
 
   app.replaceChildren(h("div", { class: "stack" },
     h("section", { class: "card", style: "display:flex;gap:16px;align-items:center" },
@@ -1177,7 +1189,7 @@ function screenHistory(confirm = null) {
     instructor ? h("section", { class: "card stack", style: "gap:10px" }, h("h3", {}, "Instrutor"),
       h("div", { class: "row" },
         CLOUD.ready && CLOUD.canEdit ? h("button", { class: "btn", onclick: screenInstructor }, "Painel do instrutor") : null,
-        supaOn() ? h("button", { class: "btn", onclick: () => screenAdminLogin() }, "Área do instrutor") : null)) : null,
+        gAdmin ? h("button", { class: "btn primary", onclick: () => adminFromSession() }, "Ver como instrutor") : null)) : null,
     h("section", { class: "card stack", style: "gap:10px" }, h("h3", {}, "Gerenciar usuário"),
       danger || h("div", { class: "row" },
         h("button", { class: "btn", onclick: () => { store.current = null; save(); screenProfiles(); } }, "Trocar de usuário"),
@@ -1673,7 +1685,7 @@ function screenProfiles(err = "") {
       h("button", { class: "btn" + (cloudCard ? "" : " primary"), type: "submit" }, "Criar e continuar")),
     h("p", { class: supaOn() ? "tip" : "muted", style: "font-size:.88rem" }, supaOn() ? "Atenção: o usuário criado neste aparelho fica salvo só neste navegador. Se trocar de aparelho ou limpar os dados do navegador, o histórico se perde. Para guardar na nuvem, entre com Google." : "Usuário criado neste aparelho fica salvo só neste navegador."),
     supaOn() ? h("p", { class: "muted", style: "font-size:.85rem" }, "Ao terminar cada simulado, seu nome e sua nota são enviados ao instrutor.") : null,
-    supaOn() ? h("button", { class: "btn ghost", style: "align-self:flex-start", onclick: () => screenAdminLogin() }, "Área do instrutor") : null));
+    null));
 }
 
 function setChip() {
