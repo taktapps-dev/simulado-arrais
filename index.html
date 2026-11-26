@@ -153,6 +153,14 @@ input[type=text]{width:100%;min-height:46px;padding:0 14px;border-radius:var(--r
 .flash .qtext{font-size:1.3rem;min-height:5em}
 a.btn{text-decoration:none;color:inherit}
 .gbtn{background:#fff;color:#1f1f1f;border-color:#dadce0;font-weight:500}.gbtn:hover{background:#f4f6f8}
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:15;display:flex;justify-content:center;gap:4px;background:var(--surface);border-top:1px solid var(--line);
+  padding:6px max(10px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(10px,env(safe-area-inset-left,0px))}
+.tab{flex:1;max-width:160px;display:flex;flex-direction:column;align-items:center;gap:2px;border:0;background:none;color:var(--muted);font:500 .78rem var(--f-body);padding:6px 4px;border-radius:12px}
+.tab.on{color:var(--accent);background:var(--accent-soft)}
+body.has-tabs main{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
+.switch{width:52px;height:30px;border-radius:999px;border:1px solid var(--line-strong);background:var(--surface-2);position:relative;padding:0;flex:none}
+.switch i{position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:var(--muted);transition:left .2s}
+.switch.on{background:var(--accent);border-color:var(--accent)}.switch.on i{left:25px;background:var(--on-accent)}
 .linkbtn{border:0;background:none;padding:0;color:var(--accent);font-weight:600;text-decoration:underline;text-underline-offset:3px;text-align:left}
 .install{border:1px solid var(--accent);background:var(--accent-soft);border-radius:var(--r);padding:14px 16px}
 .install-ico,.tut-ico{display:inline-flex;align-items:center;justify-content:center;flex:none;color:var(--accent)}
@@ -198,6 +206,7 @@ a.btn{text-decoration:none;color:inherit}
 </div></header>
 
 <main class="wrap" id="app" aria-live="polite"></main>
+<nav class="tabbar" id="tabbar" hidden aria-label="Navegação"></nav>
 
 <script>
 const LS_KEY = "simuladoNautico:v1";
@@ -635,6 +644,15 @@ const I18N_ROWS = [
 ["Conta Google · ", "Google account · ", "Googleアカウント・", "Google 계정 · "],
 ["Atenção: o usuário criado neste aparelho fica salvo só neste navegador. Se trocar de aparelho ou limpar os dados do navegador, o histórico se perde. Para guardar na nuvem, entre com Google.", "Note: a user created on this device is saved only in this browser. If you change devices or clear your browser data, the history is lost. To keep it in the cloud, sign in with Google.", "注意：この端末で作ったユーザーは、このブラウザにだけ保存されます。端末を替えたりブラウザのデータを消したりすると履歴は失われます。クラウドに保存するにはGoogleでログインしてください。", "주의: 이 기기에서 만든 사용자는 이 브라우저에만 저장됩니다. 기기를 바꾸거나 브라우저 데이터를 지우면 기록이 사라집니다. 클라우드에 저장하려면 Google로 로그인하세요."],
 ["ou", "or", "または", "또는"],
+["Treinar", "Practice", "練習", "연습"],
+["Revisar", "Review", "復習", "복습"],
+["Conta", "Account", "アカウント", "계정"],
+["Navegação", "Navigation", "ナビゲーション", "탐색"],
+["Usuário deste aparelho", "User on this device", "この端末のユーザー", "이 기기의 사용자"],
+["Conta Claude", "Claude account", "Claudeアカウント", "Claude 계정"],
+["Ajustes", "Settings", "設定", "설정"],
+["Modo noturno", "Night mode", "ナイトモード", "야간 모드"],
+["Instrutor", "Instructor", "講師", "강사"],
 ];
 const I18N = { en: {}, ja: {}, ko: {} };
 for (const [pt, en, ja, ko] of I18N_ROWS) { I18N.en[pt] = en; I18N.ja[pt] = ja; I18N.ko[pt] = ko; }
@@ -647,7 +665,7 @@ const LANGS = [["pt", "Português", "PT"], ["en", "English", "EN"], ["ja", "日�
 let BANK_PT = [], CARDS_PT = [];
 const LANG_CACHE = {};
 let rerender = () => {};
-const screen = (fn) => { rerender = fn; };
+const screen = (fn) => { rerender = fn; if (typeof showTabs === "function") showTabs(null); };
 
 async function loadLangData(lang) {
   if (lang === "pt") return { q: null, c: null };
@@ -1085,6 +1103,92 @@ function localNotice(p) {
 }
 </script>
 <script>
+/* ---------- abas do rodapé: Treinar · Revisar · Conta (somem durante a prova e nas telas de login) ---------- */
+const TABS = [
+  ["treinar", "Treinar", '<path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z"/><path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/><path d="M12 11.5v1"/>', () => screenHome()],
+  ["revisar", "Revisar", '<rect x="3" y="6" width="14" height="14" rx="2"/><path d="M7 3h12a2 2 0 0 1 2 2v12"/>', () => screenCardsStart()],
+  ["conta", "Conta", '<circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/>', () => screenHistory()],
+];
+function showTabs(active) {
+  const bar = $("#tabbar");
+  if (!active || !me()) { bar.hidden = true; document.body.classList.remove("has-tabs"); return; }
+  bar.replaceChildren(...TABS.map(([id, label, icon, go]) => h("button", { class: "tab" + (id === active ? " on" : ""), "aria-current": id === active ? "page" : null, onclick: () => { if (id !== active || id === "treinar") go(); } },
+    h("span", { "aria-hidden": "true", html: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${icon}</svg>`, style: "display:inline-flex" }),
+    h("span", {}, label))));
+  bar.hidden = false; document.body.classList.add("has-tabs");
+}
+
+/* ---------- aba Conta: perfil, evolução, histórico, ajustes, instrutor e gerenciar ---------- */
+function screenHistory(confirm = null) {
+  screen(() => screenHistory(confirm));
+  const p = me(); if (!p) return screenProfiles();
+  run = null; stopTimer(); showTabs("conta");
+  const ts = topicStats(p); const sp = spark(p.attempts); const s = typeof session === "function" ? session() : null;
+  const kind = p.google ? (s ? `${tr("Conta Google")} · ${s.user.email}` : tr("Conta Google")) : p.cloud ? tr("Conta Claude") : tr("Usuário deste aparelho");
+  const has = p.attempts.length > 0;
+  const avg = has ? Math.round(p.attempts.reduce((a, x) => a + x.pct, 0) / p.attempts.length) : 0;
+
+  const danger = confirm ? h("section", { class: "confirm stack", style: "gap:10px" },
+    h("b", { "data-raw": true }, confirm === "gdelete" ? tr("Excluir sua conta? Seu histórico na nuvem e seus resultados serão apagados para sempre. Não dá para desfazer.") : confirm === "reset" ? t("Zerar o histórico de {n}? Notas, questões vistas e fila de revisão serão apagadas. Não dá para desfazer.", { n: p.name }) : t("Apagar o usuário {n} e todo o histórico dele? Não dá para desfazer.", { n: p.name })),
+    h("div", { class: "row" },
+      h("button", { class: "btn danger", onclick: async (e) => {
+        if (confirm === "gdelete") {
+          e.target.disabled = true;
+          try { await googleDeleteAccount(); screenProfiles(); } catch { e.target.disabled = false; e.target.textContent = tr("Não foi possível excluir agora. Tente de novo."); }
+          return;
+        }
+        if (confirm === "reset") { Object.assign(p, { attempts: [], seen: {}, review: {}, cards: {} }); delete p.running; save(); if (p.cloud) cloudPushSummary(); screenHistory(); }
+        else { if (p.cloud) await cloudDeleteProfile(); delete store.profiles[store.current]; store.current = null; save(); screenProfiles(); }
+      } }, confirm === "gdelete" ? "Excluir minha conta" : confirm === "reset" ? "Zerar histórico" : "Apagar usuário"),
+      h("button", { class: "btn ghost", onclick: () => screenHistory() }, "Cancelar"))) : null;
+
+  const langs = h("div", { class: "filters", role: "group", "aria-label": "Idioma" },
+    LANGS.map(([code, name]) => h("button", { "aria-pressed": String(code === LANG), lang: code, "data-raw": true, onclick: () => setLang(code) }, name)));
+  const darkNow = (document.documentElement.getAttribute("data-theme") || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")) === "dark";
+  const install = installBanner();
+  const instructor = (CLOUD.ready && CLOUD.canEdit) || supaOn();
+
+  app.replaceChildren(h("div", { class: "stack" },
+    h("section", { class: "card", style: "display:flex;gap:16px;align-items:center" },
+      h("span", { class: "avatar", style: "width:56px;height:56px;font-size:1.3rem", "aria-hidden": "true" }, initials(p.name)),
+      h("div", { class: "stack", style: "gap:2px;min-width:0" },
+        h("h1", { "data-raw": true, style: "font-size:1.6rem" }, p.name),
+        h("span", { class: "muted", "data-raw": true, style: "font-size:.9rem;overflow-wrap:anywhere" }, kind),
+        p.google || p.cloud ? h("span", { class: "muted", style: "font-size:.85rem" }, h("span", { id: "syncNote" }, "Sincronizado")) : null)),
+    !p.google && !p.cloud && supaOn() ? h("section", { class: "install stack", style: "gap:8px" },
+      h("b", {}, "Seu histórico está só neste aparelho"),
+      h("span", { class: "muted", style: "font-size:.92rem" }, "Se trocar de celular ou limpar os dados do navegador, ele se perde. Entre com Google para guardar na nuvem e levar este histórico junto."),
+      h("div", { class: "row" }, h("button", { class: "btn gbtn", onclick: () => googleLogin("aluno") }, "Entrar com Google"))) : null,
+    has ? h("section", { class: "stats" }, stat("Simulados", p.attempts.length), stat("Média", avg + "%"), stat("Melhor nota", Math.max(...p.attempts.map((a) => a.pct)) + "%"), stat("Questões vistas", `${Object.keys(p.seen || {}).filter((id) => QMAP[id]).length}/${BANK.length}`)) : null,
+    sp ? h("section", { class: "card stack", style: "gap:8px" }, h("h3", {}, "Evolução nas provas completas"), sp) : null,
+    Object.keys(ts).length ? h("section", { class: "card stack", style: "gap:12px" }, h("h3", {}, "Acerto acumulado por matéria"), h("div", { class: "topics" }, topicRows(ts))) : null,
+    h("section", { class: "card stack", style: "gap:8px" }, h("h3", {}, "Simulados feitos"),
+      has ? h("div", { class: "scroll" }, h("table", { class: "hist" },
+        h("thead", {}, h("tr", {}, ["Data", "Tipo", "Questões", "Nota", "Tempo", "Situação"].map((c) => h("th", {}, c)))),
+        h("tbody", {}, p.attempts.slice().reverse().slice(0, 50).map((a) => h("tr", {},
+          h("td", {}, fmtDate(a.at)), h("td", {}, a.topic || "Completa"), h("td", {}, `${a.correct}/${a.n}`), h("td", { style: "font-weight:600" }, a.pct + "%"), h("td", {}, fmtTime(a.secs)),
+          h("td", {}, h("span", { class: "pill " + (a.pct >= 50 ? "ok" : "bad"), style: "font-size:.8rem;padding:2px 10px" }, a.pct >= 50 ? "Aprovado" : "Reprovado"))))))) : h("p", { class: "muted" }, "Nenhum simulado ainda.")),
+    h("section", { class: "card stack", style: "gap:14px" }, h("h3", {}, "Ajustes"),
+      h("div", { class: "stack", style: "gap:8px" }, h("p", { class: "eyebrow" }, "Idioma"), langs),
+      h("div", { class: "row", style: "justify-content:space-between" }, h("span", {}, "Modo noturno"),
+        h("button", { class: "switch" + (darkNow ? " on" : ""), role: "switch", "aria-checked": String(darkNow), "aria-label": "Modo noturno", onclick: () => { store.theme = darkNow ? "light" : "dark"; save(); applyTheme(); screenHistory(); } }, h("i"))),
+      install.childNodes.length ? install : null,
+      h("div", { class: "row" }, h("button", { class: "btn", onclick: () => screenTutorial(0, () => screenHistory()) }, "Como usar"))),
+    instructor ? h("section", { class: "card stack", style: "gap:10px" }, h("h3", {}, "Instrutor"),
+      h("div", { class: "row" },
+        CLOUD.ready && CLOUD.canEdit ? h("button", { class: "btn", onclick: screenInstructor }, "Painel do instrutor") : null,
+        supaOn() ? h("button", { class: "btn", onclick: () => screenAdminLogin() }, "Área do instrutor") : null)) : null,
+    h("section", { class: "card stack", style: "gap:10px" }, h("h3", {}, "Gerenciar usuário"),
+      danger || h("div", { class: "row" },
+        h("button", { class: "btn", onclick: () => { store.current = null; save(); screenProfiles(); } }, "Trocar de usuário"),
+        h("button", { class: "btn", onclick: () => screenHistory("reset") }, "Zerar histórico"),
+        p.google ? h("button", { class: "btn", onclick: googleLogout }, "Sair da conta") : null,
+        p.google ? h("button", { class: "btn danger-outline", onclick: () => screenHistory("gdelete") }, "Excluir minha conta")
+                 : h("button", { class: "btn danger-outline", onclick: () => screenHistory("delete") }, "Apagar usuário")))));
+  window.scrollTo({ top: 0 });
+}
+</script>
+<script>
 /* ---------- ilustrações em SVG (aparecem só depois de responder) ---------- */
 const COL = { red: "#C62828", green: "#1E8C4E", yellow: "#E3B008", black: "#1B1F24", white: "#F7F7F2", water: "var(--accent-soft)", line: "var(--fg)", muted: "var(--muted)" };
 const svgWrap = (w, h, body, label) => `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="${esc(tr(label))}" style="width:100%;max-width:${w}px;height:auto;display:block;margin:0 auto" font-family="Barlow, system-ui, sans-serif">${body}</svg>`;
@@ -1305,7 +1409,7 @@ let CARDS = [];
 let deck = null;
 
 function screenCardsStart() {
-  screen(screenCardsStart);
+  screen(screenCardsStart); showTabs("revisar");
   run = null;
   const p = me(); p.cards ??= {};
   const topics = [...new Set(CARDS.map((c) => c.t))];
@@ -1322,7 +1426,7 @@ function screenCardsStart() {
   const drawS = () => sGroup.replaceChildren(...[10, 20, 40].map((n) => h("button", { "aria-pressed": String(n === size), onclick: () => { size = n; drawS(); } }, t("{n} cartões", { n }))));
   drawS();
   app.replaceChildren(h("div", { class: "stack" },
-    h("div", { class: "row", style: "justify-content:space-between" }, h("h1", {}, "Cartões de revisão"), h("button", { class: "btn", onclick: screenHome }, iconEl("back"), "Início")),
+    h("h1", {}, "Cartões de revisão"),
     h("p", { class: "muted" }, t("Frases-chave do material de estudo. Leia, pense se você já sabia e marque. As que você não sabia voltam mais vezes. Você domina {a} de {b}.", { a: doneN, b: CARDS.length })),
     h("section", { class: "card stack" },
       h("div", { class: "stack", style: "gap:8px" }, h("p", { class: "eyebrow" }, "Matéria"), tGroup),
@@ -1339,7 +1443,7 @@ function startDeck(topic, size) {
 }
 
 function renderCard() {
-  screen(renderCard);
+  screen(renderCard); showTabs("revisar");
   const p = me();
   if (deck.i >= deck.order.length) {
     app.replaceChildren(h("div", { class: "stack" },
@@ -1403,7 +1507,7 @@ function drawCertificate(r, name) {
 }
 
 async function screenCertificate() {
-  screen(screenCertificate);
+  screen(screenCertificate); showTabs("treinar");
   const r = run.result; const p = me();
   const canvas = drawCertificate(r, p.name);
   const img = h("img", { src: canvas.toDataURL("image/png"), alt: `${tr("Certificado")}: ${p.name}, ${r.pct}%`, style: "width:100%;max-width:420px;border-radius:12px;display:block;margin:0 auto" });
@@ -1579,13 +1683,13 @@ function setChip() {
 }
 $("#userChip").addEventListener("click", () => {
   if (run && !run.done && !run.confirmLeave) { run.confirmLeave = true; renderQuestion(); return; }
-  store.current = null; save(); screenProfiles();
+  if (me()) screenHistory(); else screenProfiles();
 });
 
 /* ---------- início ---------- */
 function screenHome() {
   const p = me(); if (!p) return screenProfiles();
-  screen(screenHome);
+  screen(screenHome); showTabs("treinar");
   run = null; stopTimer(); setChip(); window.scrollTo({ top: 0 });
   p.review ??= {}; p.cards ??= {};
   const saved = p.running;
@@ -1655,11 +1759,7 @@ function screenHome() {
     h("section", { class: "card stack" },
       h("div", { class: "stack", style: "gap:4px" }, h("h2", {}, "Monte seu treino"), h("p", { class: "muted" }, t("Sorteio entre {n} questões, mantendo a proporção das matérias e dando prioridade às que você ainda não viu.", { n: BANK.length }))),
       kinds, body),
-    h("div", { class: "row" },
-      hasHist ? h("button", { class: "btn", onclick: screenHistory }, "Meu histórico") : null,
-      h("button", { class: "btn ghost", onclick: () => screenTutorial(0, screenHome) }, "Como usar"),
-      CLOUD.ready && CLOUD.canEdit ? h("button", { class: "btn", onclick: screenInstructor }, "Painel do instrutor") : null,
-      supaOn() ? h("button", { class: "btn ghost", onclick: () => screenAdminLogin() }, "Área do instrutor") : null)));
+    null));
 }
 
 function start(n, mode, opts) {
@@ -1855,7 +1955,7 @@ function spark(attempts) {
 }
 
 function screenResult() {
-  screen(screenResult);
+  screen(screenResult); showTabs("treinar");
   const r = run.result; const p = me(); const ok = r.pct >= PASS * 100;
   const sp = spark(p.attempts);
   app.replaceChildren(h("div", { class: "stack" },
@@ -1886,7 +1986,7 @@ function redoWrong() {
 }
 
 function screenReview(filter = "all") {
-  screen(() => screenReview(filter));
+  screen(() => screenReview(filter)); showTabs("treinar");
   const Q = byId();
   const groups = { all: () => true, wrong: (it) => it.pick !== Q[it.id].a, flag: (it) => it.flag, right: (it) => it.pick === Q[it.id].a };
   const count = (f) => run.items.filter(groups[f]).length;
@@ -1908,44 +2008,6 @@ function screenReview(filter = "all") {
         h("div", { class: "tip" }, h("b", {}, q.fix ? "Gabarito corrigido: " : "Dica: "), h("span", { "data-raw": true }, q.c)),
         q.v ? illus(q.v) : null);
     })) : h("p", { class: "card muted" }, "Nenhuma questão neste filtro.")));
-  window.scrollTo({ top: 0 });
-}
-
-function screenHistory(confirm = null) {
-  screen(() => screenHistory(confirm));
-  const p = me(); const ts = topicStats(p); const sp = spark(p.attempts);
-  const danger = confirm ? h("section", { class: "confirm stack", style: "gap:10px" },
-    h("b", { "data-raw": true }, confirm === "gdelete" ? tr("Excluir sua conta? Seu histórico na nuvem e seus resultados serão apagados para sempre. Não dá para desfazer.") : confirm === "reset" ? t("Zerar o histórico de {n}? Notas, questões vistas e fila de revisão serão apagadas. Não dá para desfazer.", { n: p.name }) : t("Apagar o usuário {n} e todo o histórico dele? Não dá para desfazer.", { n: p.name })),
-    h("div", { class: "row" },
-      h("button", { class: "btn danger", onclick: async (e) => {
-        if (confirm === "gdelete") {
-          e.target.disabled = true;
-          try { await googleDeleteAccount(); screenProfiles(); } catch { e.target.disabled = false; e.target.textContent = tr("Não foi possível excluir agora. Tente de novo."); }
-          return;
-        }
-        if (confirm === "reset") { Object.assign(p, { attempts: [], seen: {}, review: {}, cards: {} }); delete p.running; save(); if (p.cloud) cloudPushSummary(); screenHome(); }
-        else { if (p.cloud) await cloudDeleteProfile(); delete store.profiles[store.current]; store.current = null; save(); screenProfiles(); }
-      } }, confirm === "gdelete" ? "Excluir minha conta" : confirm === "reset" ? "Zerar histórico" : "Apagar usuário"),
-      h("button", { class: "btn ghost", onclick: () => screenHistory() }, "Cancelar"))) : null;
-  app.replaceChildren(h("div", { class: "stack" },
-    h("div", { class: "row", style: "justify-content:space-between" }, h("h1", {}, "Meu histórico"), h("button", { class: "btn", onclick: screenHome }, iconEl("back"), "Início")),
-    sp ? h("section", { class: "card stack", style: "gap:8px" }, h("h3", {}, "Evolução nas provas completas"), sp) : null,
-    Object.keys(ts).length ? h("section", { class: "card stack", style: "gap:12px" }, h("h3", {}, "Acerto acumulado por matéria"), h("div", { class: "topics" }, topicRows(ts))) : null,
-    p.attempts.length ? h("section", { class: "card stack", style: "gap:8px" }, h("h3", {}, "Simulados feitos"),
-      h("div", { class: "scroll" }, h("table", { class: "hist" },
-        h("thead", {}, h("tr", {}, ["Data", "Tipo", "Questões", "Nota", "Tempo", "Situação"].map((c) => h("th", {}, c)))),
-        h("tbody", {}, p.attempts.slice().reverse().map((a) => h("tr", {},
-          h("td", {}, fmtDate(a.at)), h("td", {}, a.topic || "Completa"), h("td", {}, `${a.correct}/${a.n}`), h("td", { style: "font-weight:600" }, a.pct + "%"), h("td", {}, fmtTime(a.secs)),
-          h("td", {}, h("span", { class: "pill " + (a.pct >= 50 ? "ok" : "bad"), style: "font-size:.8rem;padding:2px 10px" }, a.pct >= 50 ? "Aprovado" : "Reprovado")))))))) : h("p", { class: "card muted" }, "Nenhum simulado ainda."),
-    h("section", { class: "card stack", style: "gap:10px" }, h("h3", {}, "Gerenciar usuário"),
-      p.google ? h("p", { class: "muted", "data-raw": true }, session() ? `${tr("Conta Google")}: ${session().user.email}` : tr("Conta Google")) : null,
-      danger || (p.google ? h("div", { class: "row" },
-        h("button", { class: "btn", onclick: () => screenHistory("reset") }, "Zerar histórico"),
-        h("button", { class: "btn", onclick: googleLogout }, "Sair da conta"),
-        h("button", { class: "btn danger-outline", onclick: () => screenHistory("gdelete") }, "Excluir minha conta"))
-      : h("div", { class: "row" },
-        h("button", { class: "btn", onclick: () => screenHistory("reset") }, "Zerar histórico"),
-        h("button", { class: "btn danger-outline", onclick: () => screenHistory("delete") }, "Apagar usuário"))))));
   window.scrollTo({ top: 0 });
 }
 
