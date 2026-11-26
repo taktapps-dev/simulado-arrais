@@ -1,4 +1,4 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"></head><body>
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#0B1B2B"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Simulado Arrais"><meta name="description" content="Simulado gratuito para Arrais-Amador e Motonauta, em português, inglês, japonês e coreano."></head><body>
 <title>Simulado Arrais e Motonauta</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -62,7 +62,7 @@ main{padding-block:28px 64px}
 .btn.ghost:hover{background:var(--surface-2)}
 .btn.wide{width:100%}
 .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
-.grid-sizes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.grid-sizes{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:10px}
 .size{border:1px solid var(--line);border-radius:var(--r);background:var(--surface);padding:14px 8px;text-align:center}
 .size b{display:block;font:600 2rem/1 var(--f-display)}
 .size span{font-size:.8rem;color:var(--muted)}
@@ -152,6 +152,10 @@ input[type=text]{width:100%;min-height:46px;padding:0 14px;border-radius:var(--r
 .btn.danger-outline{color:var(--bad);border-color:var(--bad)}
 .flash .qtext{font-size:1.3rem;min-height:5em}
 a.btn{text-decoration:none;color:inherit}
+.install{border:1px solid var(--accent);background:var(--accent-soft);border-radius:var(--r);padding:14px 16px}
+.install-ico,.tut-ico{display:inline-flex;align-items:center;justify-content:center;flex:none;color:var(--accent)}
+.tut-ico{width:56px;height:56px;border-radius:14px;background:var(--accent-soft)}
+.dots{display:flex;gap:6px}.dots i{width:8px;height:8px;border-radius:50%;background:var(--line-strong)}.dots i.on{background:var(--accent);width:22px;border-radius:8px}
 .langwrap{position:relative}
 .lang-btn{width:auto;padding:0 10px;gap:6px;font:600 .8rem var(--f-body);letter-spacing:.04em}
 .langmenu{position:absolute;right:0;top:calc(100% + 6px);z-index:20;min-width:170px;background:var(--surface);border:1px solid var(--line-strong);border-radius:var(--r);padding:6px;display:flex;flex-direction:column;gap:2px;box-shadow:0 8px 24px rgba(0,0,0,.18)}
@@ -163,7 +167,8 @@ a.btn{text-decoration:none;color:inherit}
 .orig p{margin:.5rem 0 0}
 :lang(ja) body,:lang(ko) body{word-break:keep-all;overflow-wrap:anywhere}
 @media (max-width:560px){
-  .grid-sizes,.stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .grid-sizes{grid-template-columns:repeat(3,minmax(0,1fr))}
   .seg,.seg3{grid-template-columns:1fr}
   .score b{font-size:3.2rem}
   .topics{display:flex;flex-direction:column;align-items:stretch;gap:12px}
@@ -195,7 +200,7 @@ a.btn{text-decoration:none;color:inherit}
 <script>
 const LS_KEY = "simuladoNautico:v1";
 const PASS = 0.5;
-const SIZES = [40, 80, 120, 160];
+const SIZES = [20, 40, 80, 120, 160];
 const $ = (s, el = document) => el.querySelector(s);
 const app = $("#app");
 let BANK = [];
@@ -565,6 +570,33 @@ const I18N_ROWS = [
 ["RIPEAM - regras de governo", "RIPEAM (COLREG) - steering rules", "RIPEAM（COLREG）- 航法", "RIPEAM(COLREG) - 항법"],
 ["Segurança e incêndio", "Safety and fire", "安全と火災", "안전과 화재"],
 ["Sobrevivência no mar", "Survival at sea", "海上での生存", "해상 생존"],
+["Escolha uma alternativa ou toque em Não sei.", "Choose an option or tap I don't know.", "選択肢を選ぶか「わからない」を押してください。", "보기를 고르거나 '모르겠음'을 누르세요."],
+["Marcada como Não sei.", "Marked as I don't know.", "「わからない」として記録しました。", "'모르겠음'으로 표시했습니다."],
+["Não sei", "I don't know", "わからない", "모르겠음"],
+["Instale o simulado como app", "Install the exam as an app", "模擬試験をアプリとしてインストール", "모의고사를 앱으로 설치하세요"],
+["No iPhone: toque em Compartilhar (quadrado com seta) e depois em Adicionar à Tela de Início.", "On iPhone: tap Share (square with an arrow), then Add to Home Screen.", "iPhoneの場合：共有ボタン（矢印付きの四角）を押し、「ホーム画面に追加」を選んでください。", "iPhone: 공유 버튼(화살표가 있는 네모)을 누른 뒤 '홈 화면에 추가'를 선택하세요."],
+["Abre direto da tela inicial do celular e funciona sem internet.", "Opens straight from your phone's home screen and works offline.", "スマホのホーム画面からすぐに開け、オフラインでも使えます。", "휴대폰 홈 화면에서 바로 열리고 인터넷 없이도 작동합니다."],
+["Instalar", "Install", "インストール", "설치"],
+["Agora não", "Not now", "今はしない", "나중에"],
+["Como usar · {a} de {b}", "How to use · {a} of {b}", "使い方・{a}/{b}", "사용법 · {a}/{b}"],
+["Como usar", "How to use", "使い方", "사용법"],
+["Pular", "Skip", "スキップ", "건너뛰기"],
+["Voltar", "Back", "戻る", "뒤로"],
+["Próximo", "Next", "次へ", "다음"],
+["Começar", "Start", "はじめる", "시작"],
+["Escolha seu treino", "Choose your practice", "練習を選ぶ", "연습 선택"],
+["Prova completa de 20 a 160 questões, ou treino por matéria. Você também escolhe se vê a correção no final ou a cada questão.", "A full exam of 20 to 160 questions, or practice by subject. You also choose whether to see the answers at the end or after each question.", "20〜160問の本番形式か、科目別の練習を選べます。採点を最後にするか、1問ごとにするかも選べます。", "20~160문항의 전체 시험이나 과목별 연습을 고를 수 있습니다. 채점을 마지막에 볼지 문항마다 볼지도 선택합니다."],
+["Responda uma por vez", "Answer one at a time", "1問ずつ回答", "한 문항씩 답하기"],
+["Toque na alternativa e depois em Próxima. Se não souber, toque em Não sei: conta como erro, mas a questão volta depois para você revisar.", "Tap an option, then Next. If you don't know, tap I don't know: it counts as wrong, but the question comes back later for review.", "選択肢を選んで「次へ」を押します。わからないときは「わからない」を押してください。不正解になりますが、あとで復習として再出題されます。", "보기를 누른 뒤 '다음'을 누르세요. 모르면 '모르겠음'을 누르세요. 오답으로 처리되지만 나중에 복습 문제로 다시 나옵니다."],
+["Veja o resultado", "See your result", "結果を見る", "결과 보기"],
+["Nota, desempenho por matéria e um plano de estudo. O gabarito comentado explica cada questão, com ilustrações.", "Score, performance by subject and a study plan. The answer key explains each question, with illustrations.", "点数、科目別の成績、学習プランが表示されます。解説付き解答では各問題を図とともに説明します。", "점수, 과목별 성적, 학습 계획을 보여 줍니다. 해설 포함 정답에서 각 문항을 그림과 함께 설명합니다."],
+["Revise o que errou", "Review your mistakes", "間違いを復習", "틀린 문제 복습"],
+["As questões erradas voltam nos próximos simulados até você acertar duas vezes seguidas. Use também os Cartões de revisão.", "Questions you got wrong come back in your next exams until you get them right twice in a row. Use the Review cards too.", "間違えた問題は、2回続けて正解するまで次回以降の試験に出題されます。暗記カードも活用しましょう。", "틀린 문제는 두 번 연속 맞힐 때까지 다음 시험에 다시 나옵니다. 복습 카드도 활용하세요."],
+["Idioma e modo noturno", "Language and night mode", "言語とナイトモード", "언어와 야간 모드"],
+["No topo da tela você troca o idioma (português, inglês, japonês ou coreano) e liga o modo noturno.", "At the top of the screen you can switch the language (Portuguese, English, Japanese or Korean) and turn on night mode.", "画面上部で言語（ポルトガル語・英語・日本語・韓国語）の切り替えとナイトモードの設定ができます。", "화면 위쪽에서 언어(포르투갈어·영어·일본어·한국어)를 바꾸고 야간 모드를 켤 수 있습니다."],
+["Compartilhar imagem", "Share image", "画像を共有", "이미지 공유"],
+["Imagem salva. Agora é só anexar na rede social.", "Image saved. Now just attach it on your social network.", "画像を保存しました。SNSに添付して投稿できます。", "이미지를 저장했습니다. SNS에 첨부해 올리세요."],
+["No celular, Compartilhar imagem abre a lista de apps: Instagram, WhatsApp, Facebook e outros.", "On your phone, Share image opens the app list: Instagram, WhatsApp, Facebook and more.", "スマホでは「画像を共有」でアプリ一覧（Instagram、WhatsApp、Facebookなど）が開きます。", "휴대폰에서 '이미지 공유'를 누르면 Instagram, WhatsApp, Facebook 등 앱 목록이 열립니다."],
 ];
 const I18N = { en: {}, ja: {}, ko: {} };
 for (const [pt, en, ja, ko] of I18N_ROWS) { I18N.en[pt] = en; I18N.ja[pt] = ja; I18N.ko[pt] = ko; }
@@ -634,6 +666,79 @@ function originalBox(q, order) {
   return h("details", { class: "orig" }, h("summary", {}, "Ver original em português"),
     h("p", { "data-raw": true, lang: "pt-BR", style: "font-weight:500;color:var(--fg)" }, q.pt.q),
     ...(order || q.pt.o.map((_, i) => i)).map((oi, k) => h("p", { "data-raw": true, lang: "pt-BR" }, `${LETTERS[k]}) ${q.pt.o[oi]}`)));
+}
+</script>
+<script>
+/* ---------- instalar como app (só na versão do site, que tem manifest e service worker) ---------- */
+const HAS_MANIFEST = !!document.querySelector('link[rel="manifest"]');
+const isStandalone = () => matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+let installEvent = null;
+
+if (HAS_MANIFEST && "serviceWorker" in navigator && location.protocol === "https:") {
+  addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+}
+addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault(); installEvent = e;
+  if (document.querySelector("[data-install-slot]")) rerender();
+});
+addEventListener("appinstalled", () => { installEvent = null; store.installed = true; save(); });
+
+function installBanner() {
+  const slot = h("div", { "data-install-slot": "" });
+  if (!HAS_MANIFEST || isStandalone() || store.installed) return slot;
+  if (store.installDismissedAt && Date.now() - store.installDismissedAt < 7 * 864e5) return slot;
+  const ios = isIOS();
+  if (!installEvent && !ios) return slot;
+  const dismiss = () => { store.installDismissedAt = Date.now(); save(); slot.replaceChildren(); };
+  slot.append(h("section", { class: "install stack", style: "gap:10px" },
+    h("div", { class: "row", style: "gap:12px;flex-wrap:nowrap;align-items:flex-start" },
+      h("span", { class: "install-ico", "aria-hidden": "true", html: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M12 7v7M9 11l3 3 3-3M10 18h4"/></svg>' }),
+      h("div", { class: "stack", style: "gap:4px;min-width:0" },
+        h("b", {}, "Instale o simulado como app"),
+        h("span", { class: "muted", style: "font-size:.92rem" }, ios ? "No iPhone: toque em Compartilhar (quadrado com seta) e depois em Adicionar à Tela de Início." : "Abre direto da tela inicial do celular e funciona sem internet."))),
+    h("div", { class: "row" },
+      installEvent ? h("button", { class: "btn primary", onclick: async () => {
+        installEvent.prompt();
+        const { outcome } = await installEvent.userChoice.catch(() => ({}));
+        installEvent = null;
+        if (outcome === "accepted") { store.installed = true; save(); }
+        slot.replaceChildren();
+      } }, "Instalar") : null,
+      h("button", { class: "btn ghost", onclick: dismiss }, "Agora não"))));
+  return slot;
+}
+
+/* ---------- tutorial curto (abre na primeira vez que o app instalado é aberto, ou pelo botão Como usar) ---------- */
+const TUTORIAL = [
+  ["M4 6h16M4 12h10M4 18h7", "Escolha seu treino", "Prova completa de 20 a 160 questões, ou treino por matéria. Você também escolhe se vê a correção no final ou a cada questão."],
+  ["M5 12l4 4 10-10", "Responda uma por vez", "Toque na alternativa e depois em Próxima. Se não souber, toque em Não sei: conta como erro, mas a questão volta depois para você revisar."],
+  ["M4 20V10M10 20V4M16 20v-7M22 20H2", "Veja o resultado", "Nota, desempenho por matéria e um plano de estudo. O gabarito comentado explica cada questão, com ilustrações."],
+  ["M4 4h16v12H8l-4 4z", "Revise o que errou", "As questões erradas voltam nos próximos simulados até você acertar duas vezes seguidas. Use também os Cartões de revisão."],
+  ["M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM3 12h18", "Idioma e modo noturno", "No topo da tela você troca o idioma (português, inglês, japonês ou coreano) e liga o modo noturno."],
+];
+function screenTutorial(step = 0, then = null) {
+  screen(() => screenTutorial(step, then));
+  const done = () => { store.tutorialDone = true; save(); (then || startScreen)(); };
+  const [path, title, text] = TUTORIAL[step];
+  const lastStep = step === TUTORIAL.length - 1;
+  app.replaceChildren(h("div", { class: "stack tutorial" },
+    h("div", { class: "row", style: "justify-content:space-between" },
+      h("p", { class: "eyebrow" }, t("Como usar · {a} de {b}", { a: step + 1, b: TUTORIAL.length })),
+      lastStep ? null : h("button", { class: "btn ghost", onclick: done }, "Pular")),
+    h("section", { class: "card stack", style: "gap:16px;align-items:flex-start" },
+      h("span", { class: "tut-ico", "aria-hidden": "true", html: `<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="${path}"/></svg>` }),
+      h("h2", {}, title),
+      h("p", { class: "muted", style: "font-size:1.05rem" }, text),
+      h("div", { class: "dots", "aria-hidden": "true" }, TUTORIAL.map((_, i) => h("i", { class: i === step ? "on" : "" })))),
+    h("div", { class: "row", style: "justify-content:space-between" },
+      step ? h("button", { class: "btn", onclick: () => screenTutorial(step - 1, then) }, iconEl("back"), "Voltar") : h("span"),
+      h("button", { class: "btn primary", onclick: () => (lastStep ? done() : screenTutorial(step + 1, then)) }, lastStep ? "Começar" : "Próximo", iconEl("arrow")))));
+  window.scrollTo({ top: 0 });
+}
+function startScreen() {
+  if (isStandalone() && !store.tutorialDone) return screenTutorial();
+  me() && store.current !== CLOUD_ID ? screenHome() : screenProfiles();
 }
 </script>
 <script>
@@ -959,20 +1064,50 @@ async function screenCertificate() {
   const r = run.result; const p = me();
   const canvas = drawCertificate(r, p.name);
   const img = h("img", { src: canvas.toDataURL("image/png"), alt: `${tr("Certificado")}: ${p.name}, ${r.pct}%`, style: "width:100%;max-width:420px;border-radius:12px;display:block;margin:0 auto" });
-  const note = h("p", { class: "muted", style: "font-size:.9rem" });
+  const note = h("p", { class: "muted", role: "status", style: "font-size:.9rem;text-align:center" });
+  const siteUrl = /^https?:$/.test(location.protocol) && !/claude\.ai$|claudeusercontent\.com$/.test(location.hostname) ? location.origin + location.pathname : "";
   const shareText = t(r.pct >= PASS * 100 ? "Fiz {p}% no simulado de Arrais-Amador e Motonauta ({a}/{n} questões) e fui aprovado!" : "Fiz {p}% no simulado de Arrais-Amador e Motonauta ({a}/{n} questões)!", { p: r.pct, a: r.correct, n: r.n });
+  const fullText = siteUrl ? `${shareText} ${siteUrl}` : shareText;
   const dl = window.claude?.use ? await claude.use("downloads").catch(() => null) : null;
+  const fname = `simulado-${r.pct}.png`;
+  const blob = () => new Promise((res) => canvas.toBlob(res, "image/png"));
+
+  /* 1) celular: abre a lista de apps (Instagram, WhatsApp, Facebook…) com a imagem anexada
+     2) sem essa opção: baixa a imagem para a pessoa anexar na rede social */
+  async function shareImage() {
+    const b = await blob(); const file = new File([b], fname, { type: "image/png" });
+    try {
+      if (navigator.canShare?.({ files: [file] })) { await navigator.share({ files: [file], text: fullText }); note.textContent = ""; return; }
+    } catch (e) { if (e?.name === "AbortError") return; }
+    await saveImage(b);
+  }
+  async function saveImage(b) {
+    b ??= await blob();
+    if (dl) {
+      try { await dl.save({ filename: fname, data: b }); note.textContent = tr("Imagem salva. Agora é só anexar na rede social."); }
+      catch (e) { note.textContent = tr(e?.code === "declined" ? "Download cancelado." : "Não foi possível salvar aqui. Toque e segure a imagem para salvar."); }
+      return;
+    }
+    try {
+      const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = fname;
+      document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+      note.textContent = tr("Imagem salva. Agora é só anexar na rede social.");
+    } catch { note.textContent = tr("Não foi possível salvar aqui. Toque e segure a imagem para salvar."); }
+  }
+  const link = (label, href) => h("a", { class: "btn", href, target: "_blank", rel: "noopener" }, label);
   app.replaceChildren(h("div", { class: "stack" },
     h("div", { class: "row", style: "justify-content:space-between" }, h("h1", {}, "Certificado"), h("button", { class: "btn", onclick: screenResult }, iconEl("back"), "Resultado")),
     img,
     h("div", { class: "row", style: "justify-content:center" },
-      dl ? h("button", { class: "btn primary", onclick: () => canvas.toBlob(async (b) => {
-        try { await dl.save({ filename: `simulado-${r.pct}.png`, data: b }); note.textContent = tr("Imagem salva."); }
-        catch (e) { note.textContent = tr(e?.code === "declined" ? "Download cancelado." : "Não foi possível salvar aqui. Toque e segure a imagem para salvar."); }
-      }, "image/png") }, "Salvar imagem") : null,
-      h("a", { class: "btn", href: "https://wa.me/?text=" + encodeURIComponent(shareText), target: "_blank", rel: "noopener" }, "Compartilhar no WhatsApp")),
+      h("button", { class: "btn primary", onclick: shareImage }, "Compartilhar imagem"),
+      h("button", { class: "btn", onclick: () => saveImage() }, "Salvar imagem")),
     note,
-    dl ? null : h("p", { class: "muted", style: "font-size:.9rem;text-align:center" }, "Para salvar, toque e segure a imagem (celular) ou clique com o botão direito (computador).")));
+    h("p", { class: "muted", style: "font-size:.9rem;text-align:center" }, "No celular, Compartilhar imagem abre a lista de apps: Instagram, WhatsApp, Facebook e outros."),
+    h("div", { class: "row", style: "justify-content:center" },
+      link("WhatsApp", "https://wa.me/?text=" + encodeURIComponent(fullText)),
+      siteUrl ? link("Facebook", "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(siteUrl)) : null,
+      link("X", "https://twitter.com/intent/tweet?text=" + encodeURIComponent(fullText)),
+      link("Telegram", "https://t.me/share/url?url=" + encodeURIComponent(siteUrl || " ") + "&text=" + encodeURIComponent(shareText)))));
 }
 </script>
 <script>
@@ -1068,6 +1203,7 @@ function screenProfiles(err = "") {
       catch { e.target.disabled = false; e.target.textContent = "Usar minha conta"; errEl.textContent = "Não foi possível conectar à sua conta agora. Crie um usuário local ou tente de novo."; }
     } }, "Usar minha conta")) : null;
   app.replaceChildren(h("div", { class: "stack" },
+    installBanner(),
     h("div", { class: "stack", style: "gap:8px" },
       h("p", { class: "eyebrow" }, "Preparação para a prova da Marinha"),
       h("h1", {}, "Quem vai fazer o simulado?"),
@@ -1157,6 +1293,7 @@ function screenHome() {
   const avg = hasHist ? Math.round(p.attempts.reduce((s, a) => s + a.pct, 0) / p.attempts.length) : 0;
   const seenN = Object.keys(p.seen || {}).filter((id) => QMAP[id]).length;
   app.replaceChildren(h("div", { class: "stack" },
+    installBanner(),
     h("div", { class: "stack", style: "gap:6px" },
       h("p", { class: "eyebrow" }, hasHist ? "Bem-vindo de volta" : "Primeiro simulado"),
       h("h1", { "data-raw": true }, t("Olá, {n}", { n: p.name.split(" ")[0] })),
@@ -1173,6 +1310,7 @@ function screenHome() {
       kinds, body),
     h("div", { class: "row" },
       hasHist ? h("button", { class: "btn", onclick: screenHistory }, "Meu histórico") : null,
+      h("button", { class: "btn ghost", onclick: () => screenTutorial(0, screenHome) }, "Como usar"),
       CLOUD.ready && CLOUD.canEdit ? h("button", { class: "btn", onclick: screenInstructor }, "Painel do instrutor") : null)));
 }
 
@@ -1219,7 +1357,9 @@ function feedback(q, it) {
   return fig ? [box, fig] : [box];
 }
 
-function renderQuestion() {
+/* Prova em sequência: sem mapa e sem voltar. Para avançar, é preciso responder ou tocar em "Não sei" (DONT_KNOW). */
+const DONT_KNOW = -1;
+function renderQuestion(needPick = false) {
   screen(renderQuestion);
   const Q = byId(); const it = run.items[run.cur]; const q = Q[it.id];
   const answered = run.items.filter((i) => i.pick != null).length;
@@ -1233,7 +1373,7 @@ function renderQuestion() {
         h("span", { class: "l" }, LETTERS[k]), h("span", { "data-raw": true }, q.o[oi]));
     }));
   const last = run.cur === run.items.length - 1;
-  const blanks = run.items.length - answered;
+  const hint = h("p", { class: "err", role: "alert" }, needPick ? "Escolha uma alternativa ou toque em Não sei." : "");
   app.replaceChildren(h("div", { class: "stack" },
     h("div", { class: "stack", style: "gap:8px" },
       h("div", { class: "qhead" },
@@ -1249,32 +1389,34 @@ function renderQuestion() {
       run.limit ? h("p", { class: "eyebrow" }, q.t) : null,
       h("p", { class: "qtext", "data-raw": true }, q.q),
       opts,
+      it.pick === DONT_KNOW && run.mode !== "now" ? h("p", { class: "muted" }, "Marcada como Não sei.") : null,
       originalBox(q, it.order),
       locked ? feedback(q, it) : null,
+      hint,
       h("div", { class: "nav" },
-        h("button", { class: "btn", disabled: run.cur === 0, onclick: () => go(run.cur - 1) }, iconEl("back"), "Anterior"),
+        locked ? h("span") : h("button", { class: "btn ghost", onclick: dontKnow }, "Não sei"),
         h("button", { class: "btn ghost", "aria-pressed": String(it.flag), onclick: () => { it.flag = !it.flag; persistRun(); renderQuestion(); }, style: it.flag ? "color:var(--brass)" : "" }, iconEl("flag"), it.flag ? "Marcada" : "Marcar para revisar"),
-        last ? h("button", { class: "btn primary", onclick: askFinish }, "Finalizar")
-             : h("button", { class: "btn primary", onclick: () => go(run.cur + 1) }, "Próxima", iconEl("arrow")))),
+        h("button", { class: "btn primary", onclick: next }, last ? "Finalizar" : "Próxima", last ? null : iconEl("arrow")))),
     run.askFinish ? h("section", { class: "confirm stack", style: "gap:10px" },
-      h("b", {}, blanks ? (blanks > 1 ? t("Você deixou {n} questões em branco. Em branco conta como erro.", { n: blanks }) : tr("Você deixou 1 questão em branco. Em branco conta como erro.")) : "Tudo respondido. Entregar o simulado?"),
+      h("b", {}, "Tudo respondido. Entregar o simulado?"),
       h("div", { class: "row" },
         h("button", { class: "btn primary", onclick: () => finish(false) }, "Entregar e ver resultado"),
         h("button", { class: "btn ghost", onclick: () => { run.askFinish = false; renderQuestion(); } }, "Voltar à prova"))) : null,
-    h("section", { class: "card stack", style: "gap:12px" },
-      h("div", { class: "row", style: "justify-content:space-between" }, h("h3", {}, "Mapa da prova"),
-        h("div", { class: "row" },
-          h("button", { class: "btn ghost", onclick: () => { stopTimer(); persistRun(); screenHome(); } }, "Pausar e sair"),
-          h("button", { class: "btn", onclick: askFinish }, "Finalizar simulado"))),
-      h("div", { class: "map" }, run.items.map((x, i) => {
-        let c = ""; if (i === run.cur) c = "cur"; else if (run.mode === "now" && x.pick != null) c = x.pick === Q[x.id].a ? "r" : "w"; else if (x.pick != null) c = "done";
-        if (x.flag) c += " flag";
-        return h("button", { class: c, onclick: () => go(i), "aria-label": t("Ir para a questão {n}", { n: i + 1 }) }, i + 1);
-      })),
-      h("div", { class: "legend" }, h("span", {}, h("i", { style: "background:var(--accent-soft);border-color:var(--accent-soft)" }), "Respondida"), h("span", {}, h("i", { style: "border:2px solid var(--brass)" }), "Marcada"), h("span", {}, h("i", { style: "background:var(--accent)" }), "Atual")))));
+    h("div", { class: "row", style: "justify-content:center" },
+      h("button", { class: "btn ghost", onclick: () => { stopTimer(); persistRun(); screenHome(); } }, "Pausar e sair"))));
 }
 function choose(oi) { const it = run.items[run.cur]; if (run.mode === "now" && it.pick != null) return; it.pick = oi; persistRun(); renderQuestion(); }
-function go(i) { run.cur = Math.max(0, Math.min(run.items.length - 1, i)); run.askFinish = false; persistRun(); renderQuestion(); window.scrollTo({ top: 0 }); }
+function dontKnow() {
+  const it = run.items[run.cur]; if (run.mode === "now" && it.pick != null) return;
+  it.pick = DONT_KNOW; persistRun();
+  if (run.mode === "now") renderQuestion(); else next();
+}
+function next() {
+  const it = run.items[run.cur];
+  if (it.pick == null) { renderQuestion(true); return; }
+  if (run.cur === run.items.length - 1) { askFinish(); return; }
+  run.cur++; run.askFinish = false; persistRun(); renderQuestion(); window.scrollTo({ top: 0 });
+}
 function askFinish() { run.askFinish = true; renderQuestion(); requestAnimationFrame(() => $(".confirm")?.scrollIntoView({ block: "center" })); }
 
 document.addEventListener("keydown", (e) => {
@@ -1284,8 +1426,7 @@ document.addEventListener("keydown", (e) => {
   const it = run.items[run.cur];
   if (idx >= 0 && idx < it.order.length) choose(it.order[idx]);
   else if (/^[1-5]$/.test(k) && +k <= it.order.length) choose(it.order[+k - 1]);
-  else if (e.key === "ArrowRight") go(run.cur + 1);
-  else if (e.key === "ArrowLeft") go(run.cur - 1);
+  else if (e.key === "Enter" || e.key === "ArrowRight") next();
 });
 
 /* ---------- entrega ---------- */
@@ -1298,7 +1439,7 @@ function finish(timeUp) {
   for (const it of run.items) {
     const q = Q[it.id]; topics[q.t] ??= [0, 0]; topics[q.t][1]++;
     const ok = it.pick === q.a;
-    if (it.pick == null) blank++; else if (ok) { correct++; topics[q.t][0]++; }
+    if (it.pick == null || it.pick === DONT_KNOW) blank++; else if (ok) { correct++; topics[q.t][0]++; }
     p.seen[it.id] = (p.seen[it.id] || 0) + 1;
     if (!ok) p.review[it.id] = 0;
     else if (it.id in p.review) { p.review[it.id]++; if (p.review[it.id] >= 2) delete p.review[it.id]; }
@@ -1372,7 +1513,7 @@ function screenResult() {
     h("section", { class: "card stack", style: "gap:14px" },
       h("p", { class: "eyebrow" }, t("Resultado · {n} questões", { n: r.n }) + (r.topic ? " · " + tr(r.topic) : "") + (r.timeUp ? " · " + tr("tempo esgotado") : "")),
       h("div", { class: "score" }, h("b", { style: `color:var(${ok ? "--ok" : "--bad"})` }, r.pct + "%"), h("span", { class: "pill " + (ok ? "ok" : "bad") }, ok ? "Aprovado" : "Reprovado", h("span", { style: "font-weight:400" }, t(" · mínimo {p}%", { p: PASS * 100 })))),
-      h("div", { class: "stats" }, stat("Acertos", r.correct), stat("Erros", r.wrong), stat("Em branco", r.blank), stat("Tempo", fmtTime(r.secs)))),
+      h("div", { class: "stats" }, stat("Acertos", r.correct), stat("Erros", r.wrong), stat("Não sei", r.blank), stat("Tempo", fmtTime(r.secs)))),
     h("section", { class: "card stack", style: "gap:14px" },
       h("h2", {}, "Estratégia e melhoria"),
       h("ul", { class: "plan" }, strategy(r, run.prev, p).map((t) => h("li", {}, iconEl("dot"), h("span", {}, t)))),
@@ -1406,13 +1547,13 @@ function screenReview(filter = "all") {
     h("div", { class: "filters", role: "group", "aria-label": "Filtrar questões" },
       [["all", "Todas"], ["wrong", "Erradas e em branco"], ["right", "Certas"], ["flag", "Marcadas"]].map(([k, l]) => h("button", { "aria-pressed": String(k === filter), onclick: () => screenReview(k) }, `${tr(l)} (${count(k)})`))),
     list.length ? h("div", { class: "review" }, list.map(([it, i]) => {
-      const q = Q[it.id]; const ok = it.pick === q.a; const blank = it.pick == null;
+      const q = Q[it.id]; const ok = it.pick === q.a; const blank = it.pick == null || it.pick === DONT_KNOW;
       const L = (oi) => LETTERS[it.order.indexOf(oi)];
       return h("article", { class: "card stack", style: "gap:10px" },
         h("div", { class: "qhead" }, h("span", {}, t("Questão {n}", { n: i + 1 }) + (it.flag ? " · " + tr("marcada") : "")), h("span", {}, q.t)),
         h("p", { style: "font-weight:500", "data-raw": true }, q.q),
         originalBox(q, it.order),
-        blank ? h("div", { class: "ans-line b" }, iconEl("x"), h("span", {}, "Em branco"))
+        blank ? h("div", { class: "ans-line b" }, iconEl("x"), h("span", {}, it.pick === DONT_KNOW ? "Não sei" : "Em branco"))
               : h("div", { class: "ans-line " + (ok ? "r" : "w") }, iconEl(ok ? "check" : "x"), h("span", { "data-raw": true }, t("Sua resposta: {l}) {o}", { l: L(it.pick), o: q.o[it.pick] }))),
         ok ? null : h("div", { class: "ans-line r" }, iconEl("check"), h("span", { "data-raw": true }, t("Correta: {l}) {o}", { l: L(q.a), o: q.o[q.a] }))),
         h("div", { class: "tip" }, h("b", {}, q.fix ? "Gabarito corrigido: " : "Dica: "), h("span", { "data-raw": true }, q.c)),
@@ -1465,7 +1606,7 @@ async function boot() {
   BANK_PT = BANK; CARDS_PT = CARDS;
   try { applyLangData(LANG === "pt" ? {} : await loadLangData(LANG)); } catch { LANG = "pt"; applyLangData({}); }
   paintStatic();
-  me() && store.current !== CLOUD_ID ? screenHome() : screenProfiles();
+  startScreen();
   await cloudInit();
   if (CLOUD.ready) {
     if (store.current === CLOUD_ID) { try { await cloudOpen(store.profiles[CLOUD_ID]?.name || CLOUD.name); screenHome(); } catch { screenProfiles(); } }
