@@ -152,6 +152,8 @@ input[type=text]{width:100%;min-height:46px;padding:0 14px;border-radius:var(--r
 .btn.danger-outline{color:var(--bad);border-color:var(--bad)}
 .flash .qtext{font-size:1.3rem;min-height:5em}
 a.btn{text-decoration:none;color:inherit}
+.gbtn{background:#fff;color:#1f1f1f;border-color:#dadce0;font-weight:500}.gbtn:hover{background:#f4f6f8}
+.linkbtn{border:0;background:none;padding:0;color:var(--accent);font-weight:600;text-decoration:underline;text-underline-offset:3px;text-align:left}
 .install{border:1px solid var(--accent);background:var(--accent-soft);border-radius:var(--r);padding:14px 16px}
 .install-ico,.tut-ico{display:inline-flex;align-items:center;justify-content:center;flex:none;color:var(--accent)}
 .tut-ico{width:56px;height:56px;border-radius:14px;background:var(--accent-soft)}
@@ -211,7 +213,7 @@ function loadStore() {
   try { return JSON.parse(localStorage.getItem(LS_KEY)) || { profiles: {}, current: null }; }
   catch { return { profiles: {}, current: null }; }
 }
-function save() { try { localStorage.setItem(LS_KEY, JSON.stringify(store)); } catch {} if (typeof cloudOnSave === "function") cloudOnSave(); }
+function save() { try { localStorage.setItem(LS_KEY, JSON.stringify(store)); } catch {} if (typeof cloudOnSave === "function") cloudOnSave(); if (typeof googleOnSave === "function") googleOnSave(); }
 function me() { return store.profiles[store.current] || null; }
 
 /* ---------- idioma: textos fixos passam pelo dicionário; modelos com {x} usam t() ---------- */
@@ -597,6 +599,42 @@ const I18N_ROWS = [
 ["Compartilhar imagem", "Share image", "画像を共有", "이미지 공유"],
 ["Imagem salva. Agora é só anexar na rede social.", "Image saved. Now just attach it on your social network.", "画像を保存しました。SNSに添付して投稿できます。", "이미지를 저장했습니다. SNS에 첨부해 올리세요."],
 ["No celular, Compartilhar imagem abre a lista de apps: Instagram, WhatsApp, Facebook e outros.", "On your phone, Share image opens the app list: Instagram, WhatsApp, Facebook and more.", "スマホでは「画像を共有」でアプリ一覧（Instagram、WhatsApp、Facebookなど）が開きます。", "휴대폰에서 '이미지 공유'를 누르면 Instagram, WhatsApp, Facebook 등 앱 목록이 열립니다."],
+["A área do instrutor ainda não foi configurada.", "The instructor area hasn't been set up yet.", "講師エリアはまだ設定されていません。", "강사 영역이 아직 설정되지 않았습니다."],
+["Preencha e-mail e senha.", "Enter your email and password.", "メールアドレスとパスワードを入力してください。", "이메일과 비밀번호를 입력하세요."],
+["Entrando…", "Signing in…", "ログイン中…", "로그인 중…"],
+["Este usuário não é admin.", "This user isn't an admin.", "このユーザーは管理者ではありません。", "이 사용자는 관리자가 아닙니다."],
+["E-mail ou senha incorretos.", "Wrong email or password.", "メールアドレスまたはパスワードが違います。", "이메일 또는 비밀번호가 올바르지 않습니다."],
+["Área do instrutor", "Instructor area", "講師エリア", "강사 영역"],
+["Acesso só para o instrutor. Entre com o e-mail e a senha de admin.", "Instructor access only. Sign in with the admin email and password.", "講師専用です。管理者のメールアドレスとパスワードでログインしてください。", "강사 전용입니다. 관리자 이메일과 비밀번호로 로그인하세요."],
+["E-mail", "Email", "メールアドレス", "이메일"],
+["Senha", "Password", "パスワード", "비밀번호"],
+["Entrar", "Sign in", "ログイン", "로그인"],
+["Sua sessão expirou. Entre de novo.", "Your session expired. Sign in again.", "セッションの有効期限が切れました。もう一度ログインしてください。", "세션이 만료되었습니다. 다시 로그인하세요."],
+["Sair", "Sign out", "ログアウト", "로그아웃"],
+["Atualizar", "Refresh", "更新", "새로 고침"],
+["Todos os alunos", "All students", "受講生一覧", "전체 수강생"],
+["Nenhum resultado ainda. Os resultados aparecem aqui quando os alunos terminam um simulado no site.", "No results yet. Results appear here when students finish an exam on the site.", "まだ結果がありません。受講生がサイトで試験を終えるとここに表示されます。", "아직 결과가 없습니다. 수강생이 사이트에서 시험을 마치면 여기에 표시됩니다."],
+["Toque no nome para ver o histórico completo.", "Tap a name to see the full history.", "名前を押すと全履歴が見られます。", "이름을 누르면 전체 기록을 볼 수 있습니다."],
+["Ao terminar cada simulado, seu nome e sua nota são enviados ao instrutor.", "When you finish each exam, your name and score are sent to the instructor.", "試験を終えるたびに、名前と点数が講師に送信されます。", "시험을 마칠 때마다 이름과 점수가 강사에게 전송됩니다."],
+["Não foi possível concluir o login com Google.", "Couldn't complete the Google sign-in.", "Googleでのログインを完了できませんでした。", "Google 로그인을 완료하지 못했습니다."],
+["Não foi possível abrir sua conta agora. Tente de novo.", "Couldn't open your account right now. Try again.", "アカウントを開けませんでした。もう一度お試しください。", "지금은 계정을 열 수 없습니다. 다시 시도하세요."],
+["Levar seu histórico para a conta?", "Bring your history to your account?", "履歴をアカウントに移しますか？", "기록을 계정으로 옮길까요?"],
+["Encontramos usuários salvos neste aparelho. Escolha um para levar o histórico para a sua conta Google, ou comece do zero.", "We found users saved on this device. Choose one to move its history to your Google account, or start fresh.", "この端末に保存されたユーザーが見つかりました。Googleアカウントに移す履歴を選ぶか、最初から始めてください。", "이 기기에 저장된 사용자가 있습니다. Google 계정으로 옮길 기록을 고르거나 처음부터 시작하세요."],
+["Começar do zero", "Start fresh", "最初から始める", "처음부터 시작"],
+["Sua conta Google", "Your Google account", "あなたのGoogleアカウント", "내 Google 계정"],
+["Continuar com esta conta", "Continue with this account", "このアカウントで続ける", "이 계정으로 계속"],
+["Sair da conta", "Sign out", "ログアウト", "로그아웃"],
+["Entrar com Google", "Sign in with Google", "Googleでログイン", "Google로 로그인"],
+["Seu histórico fica salvo na nuvem e você continua de qualquer aparelho: celular, tablet ou computador. Dá para excluir a conta quando quiser.", "Your history is saved in the cloud and you can continue on any device: phone, tablet or computer. You can delete your account anytime.", "履歴はクラウドに保存され、スマホ・タブレット・パソコンのどれからでも続けられます。アカウントはいつでも削除できます。", "기록이 클라우드에 저장되어 휴대폰, 태블릿, 컴퓨터 어디서든 이어서 할 수 있습니다. 계정은 언제든 삭제할 수 있습니다."],
+["Seu histórico está só neste aparelho", "Your history is only on this device", "履歴はこの端末にしかありません", "기록이 이 기기에만 있습니다"],
+["Se trocar de celular ou limpar os dados do navegador, ele se perde. Entre com Google para guardar na nuvem e levar este histórico junto.", "If you change phones or clear your browser data, it's lost. Sign in with Google to keep it in the cloud and bring this history along.", "スマホを替えたりブラウザのデータを消したりすると失われます。Googleでログインすればクラウドに保存され、この履歴も引き継げます。", "휴대폰을 바꾸거나 브라우저 데이터를 지우면 사라집니다. Google로 로그인하면 클라우드에 저장되고 이 기록도 옮겨집니다."],
+["Excluir sua conta? Seu histórico na nuvem e seus resultados serão apagados para sempre. Não dá para desfazer.", "Delete your account? Your cloud history and results will be erased for good. This can't be undone.", "アカウントを削除しますか？クラウドの履歴と結果は完全に消去され、元に戻せません。", "계정을 삭제할까요? 클라우드 기록과 결과가 영구적으로 삭제되며 되돌릴 수 없습니다."],
+["Não foi possível excluir agora. Tente de novo.", "Couldn't delete right now. Try again.", "今は削除できませんでした。もう一度お試しください。", "지금은 삭제할 수 없습니다. 다시 시도하세요."],
+["Excluir minha conta", "Delete my account", "アカウントを削除", "내 계정 삭제"],
+["Conta Google", "Google account", "Googleアカウント", "Google 계정"],
+["Conta Google · ", "Google account · ", "Googleアカウント・", "Google 계정 · "],
+["Atenção: o usuário criado neste aparelho fica salvo só neste navegador. Se trocar de aparelho ou limpar os dados do navegador, o histórico se perde. Para guardar na nuvem, entre com Google.", "Note: a user created on this device is saved only in this browser. If you change devices or clear your browser data, the history is lost. To keep it in the cloud, sign in with Google.", "注意：この端末で作ったユーザーは、このブラウザにだけ保存されます。端末を替えたりブラウザのデータを消したりすると履歴は失われます。クラウドに保存するにはGoogleでログインしてください。", "주의: 이 기기에서 만든 사용자는 이 브라우저에만 저장됩니다. 기기를 바꾸거나 브라우저 데이터를 지우면 기록이 사라집니다. 클라우드에 저장하려면 Google로 로그인하세요."],
+["ou", "or", "または", "또는"],
 ];
 const I18N = { en: {}, ja: {}, ko: {} };
 for (const [pt, en, ja, ko] of I18N_ROWS) { I18N.en[pt] = en; I18N.ja[pt] = ja; I18N.ko[pt] = ko; }
@@ -737,8 +775,313 @@ function screenTutorial(step = 0, then = null) {
   window.scrollTo({ top: 0 });
 }
 function startScreen() {
+  if (location.hash === "#instrutor" && supaOn()) return screenAdminLogin();
   if (isStandalone() && !store.tutorialDone) return screenTutorial();
   me() && store.current !== CLOUD_ID ? screenHome() : screenProfiles();
+}
+</script>
+<script>
+/* ---------- painel do instrutor via Supabase (só na versão do site; o Claude bloqueia conexões externas) ----------
+   Alunos: ao terminar um simulado, o resumo é enviado (nome, nota, matérias). Sem internet, fica na fila e reenvia depois.
+   Instrutor: entra com e-mail e senha de admin; as regras do banco só deixam admins lerem. */
+const SUPA = {"url": "https://qzvnqwxxvmylsqnojfuw.supabase.co", "key": "sb_publishable_qDt-9LdubShIOVIvi6qaMg_KEJ5RKew"}; /* preenchido em build_gh.py */
+const supaOn = () => !!(SUPA.url && SUPA.key) && !window.claude?.use;
+/* sem login, vai só o apikey: funciona com a chave nova (publishable) e com a antiga (anon) */
+const supaHeaders = (token) => ({ apikey: SUPA.key, "Content-Type": "application/json", ...(token ? { Authorization: "Bearer " + token } : {}) });
+
+function studentId(p) { p.sid ??= (crypto.randomUUID?.() || Date.now().toString(36) + Math.random().toString(36).slice(2)); return p.sid; }
+
+function queueResult(p, r) {
+  if (!supaOn()) return;
+  store.outbox ??= [];
+  const uid = p.google && session() ? session().user.id : undefined;
+  store.outbox.push({ user_id: uid,
+    aluno_id: studentId(p), nome: p.name.slice(0, 40), questoes: r.n, acertos: r.correct, nota: r.pct,
+    tempo_s: Math.min(86400, r.secs), materia: r.topic || null, materias: r.topics, idioma: LANG,
+  });
+  save(); flushOutbox();
+}
+let flushing = false;
+async function flushOutbox() {
+  if (!supaOn() || flushing || !store.outbox?.length) return;
+  flushing = true;
+  try {
+    while (store.outbox.length) {
+      const item = store.outbox[0];
+      const tk = item.user_id ? await accessToken() : null;
+      if (item.user_id && !tk) delete item.user_id;
+      const res = await fetch(SUPA.url + "/rest/v1/resultados", { method: "POST", headers: { ...supaHeaders(tk), Prefer: "return=minimal" }, body: JSON.stringify(item) });
+      if (res.ok || (res.status >= 400 && res.status < 500 && res.status !== 401 && res.status !== 429)) { store.outbox.shift(); save(); }
+      else break;
+    }
+  } catch {}
+  flushing = false;
+}
+addEventListener("online", flushOutbox);
+
+/* ---------- área do instrutor ---------- */
+let ADMIN = null; /* { token, email } só na memória: fechar a página encerra a sessão */
+function screenAdminLogin(err = "") {
+  screen(() => screenAdminLogin());
+  run = null; stopTimer();
+  if (!supaOn()) { app.replaceChildren(h("p", { class: "card muted" }, "A área do instrutor ainda não foi configurada.")); return; }
+  const email = h("input", { type: "email", id: "admEmail", autocomplete: "username", placeholder: "seu@email.com" });
+  const pass = h("input", { type: "password", id: "admPass", autocomplete: "current-password" });
+  const errEl = h("p", { class: "err", role: "alert" }, err);
+  const submit = async (e) => {
+    e.preventDefault();
+    if (!email.value.trim() || !pass.value) { errEl.textContent = tr("Preencha e-mail e senha."); return; }
+    const btn = e.target.querySelector("button[type=submit]"); btn.disabled = true; btn.textContent = tr("Entrando…");
+    try {
+      const res = await fetch(SUPA.url + "/auth/v1/token?grant_type=password", { method: "POST", headers: supaHeaders(), body: JSON.stringify({ email: email.value.trim(), password: pass.value }) });
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok || !j.access_token) throw new Error("login");
+      const chk = await fetch(SUPA.url + "/rest/v1/admins?select=user_id", { headers: supaHeaders(j.access_token) });
+      const rows = chk.ok ? await chk.json() : [];
+      if (!rows.length) { screenAdminLogin(tr("Este usuário não é admin.")); return; }
+      ADMIN = { token: j.access_token, email: j.user?.email || email.value.trim() };
+      screenAdmin();
+    } catch { screenAdminLogin(tr("E-mail ou senha incorretos.")); }
+  };
+  app.replaceChildren(h("div", { class: "stack" },
+    h("div", { class: "row", style: "justify-content:space-between" }, h("h1", {}, "Área do instrutor"), h("button", { class: "btn", onclick: startScreen }, iconEl("back"), "Início")),
+    h("form", { class: "card stack", style: "gap:12px;max-width:420px", onsubmit: submit },
+      h("p", { class: "muted" }, "Acesso só para o instrutor. Entre com o e-mail e a senha de admin."),
+      h("label", { for: "admEmail", class: "muted", style: "font-size:.9rem" }, "E-mail"), email,
+      h("label", { for: "admPass", class: "muted", style: "font-size:.9rem" }, "Senha"), pass,
+      errEl,
+      h("button", { class: "btn primary", type: "submit" }, "Entrar"),
+      h("p", { class: "muted", style: "text-align:center;font-size:.9rem" }, "ou"),
+      h("button", { class: "btn gbtn", type: "button", onclick: () => googleLogin("admin") }, "Entrar com Google"))));
+}
+async function adminFromSession() {
+  const tk = await accessToken();
+  if (!tk) return screenAdminLogin(tr("Não foi possível concluir o login com Google."));
+  const chk = await fetch(SUPA.url + "/rest/v1/admins?select=user_id", { headers: supaHeaders(tk) }).catch(() => null);
+  const rows = chk?.ok ? await chk.json() : [];
+  if (!rows.length) return screenAdminLogin(tr("Este usuário não é admin."));
+  ADMIN = { token: tk, email: session().user.email, google: true };
+  screenAdmin();
+}
+
+async function screenAdmin(sel = null) {
+  screen(() => screenAdmin(sel));
+  if (!ADMIN) return screenAdminLogin();
+  app.replaceChildren(h("p", { class: "card muted" }, "Carregando a turma…"));
+  let rows = [];
+  try {
+    const res = await fetch(SUPA.url + "/rest/v1/resultados?select=*&order=criado_em.asc&limit=5000", { headers: supaHeaders(ADMIN.token) });
+    if (res.status === 401) { ADMIN = null; return screenAdminLogin(tr("Sua sessão expirou. Entre de novo.")); }
+    rows = await res.json();
+  } catch { app.replaceChildren(h("p", { class: "card err" }, "Não foi possível ler a turma agora.")); return; }
+  const by = {};
+  for (const r of rows) (by[r.aluno_id] ??= { id: r.aluno_id, name: r.nome, list: [] }).list.push(r), (by[r.aluno_id].name = r.nome);
+  const students = Object.values(by).map((s) => {
+    const full = s.list.filter((r) => !r.materia); const base = full.length ? full : s.list;
+    const topics = {};
+    for (const r of s.list) for (const [t, [c, n]] of Object.entries(r.materias || {})) { topics[t] ??= [0, 0]; topics[t][0] += c; topics[t][1] += n; }
+    const weakest = Object.entries(topics).filter(([, [, n]]) => n >= 3).sort((a, b) => a[1][0] / a[1][1] - b[1][0] / b[1][1])[0]?.[0] || "—";
+    return { ...s, topics, weakest, n: s.list.length, avg: Math.round(base.reduce((a, r) => a + r.nota, 0) / base.length),
+      last: base.at(-1).nota, best: Math.max(...base.map((r) => r.nota)), at: s.list.at(-1).criado_em };
+  }).sort((a, b) => a.avg - b.avg);
+  const logout = h("button", { class: "btn ghost", onclick: () => { ADMIN = null; startScreen(); } }, "Sair");
+  const head = h("div", { class: "row", style: "justify-content:space-between" }, h("h1", {}, "Painel do instrutor"), h("div", { class: "row" }, h("button", { class: "btn", onclick: () => screenAdmin(sel) }, "Atualizar"), logout));
+  if (sel && by[sel]) {
+    const s = students.find((x) => x.id === sel);
+    app.replaceChildren(h("div", { class: "stack" }, head,
+      h("button", { class: "btn", style: "align-self:flex-start", onclick: () => screenAdmin() }, iconEl("back"), "Todos os alunos"),
+      h("h2", { "data-raw": true }, s.name),
+      h("section", { class: "stats" }, stat("Simulados", s.n), stat("Média", s.avg + "%"), stat("Última", s.last + "%"), stat("Melhor", s.best + "%")),
+      h("section", { class: "card stack", style: "gap:12px" }, h("h3", {}, "Acerto acumulado por matéria"), h("div", { class: "topics" }, topicRows(s.topics))),
+      h("section", { class: "card stack", style: "gap:8px" }, h("h3", {}, "Simulados feitos"),
+        h("div", { class: "scroll" }, h("table", { class: "hist" },
+          h("thead", {}, h("tr", {}, ["Data", "Tipo", "Questões", "Nota", "Tempo"].map((c) => h("th", {}, c)))),
+          h("tbody", {}, s.list.slice().reverse().map((r) => h("tr", {},
+            h("td", {}, fmtDate(Date.parse(r.criado_em))), h("td", {}, r.materia || "Completa"), h("td", {}, `${r.acertos}/${r.questoes}`),
+            h("td", {}, h("span", { class: "pill " + (r.nota >= PASS * 100 ? "ok" : "bad"), style: "font-size:.8rem;padding:2px 10px" }, r.nota + "%")), h("td", {}, fmtTime(r.tempo_s))))))))));
+    return;
+  }
+  const agg = {};
+  for (const s of students) for (const [t, [c, n]] of Object.entries(s.topics)) { agg[t] ??= [0, 0]; agg[t][0] += c; agg[t][1] += n; }
+  const avgAll = students.length ? Math.round(students.reduce((a, s) => a + s.avg, 0) / students.length) : 0;
+  app.replaceChildren(h("div", { class: "stack" }, head,
+    h("p", { class: "muted", "data-raw": true }, ADMIN.email),
+    students.length ? null : h("p", { class: "card muted" }, "Nenhum resultado ainda. Os resultados aparecem aqui quando os alunos terminam um simulado no site."),
+    students.length ? h("section", { class: "stats" }, stat("Alunos", students.length), stat("Média da turma", avgAll + "%"), stat("Aprovados na última", students.filter((s) => s.last >= PASS * 100).length), stat("Simulados feitos", rows.length)) : null,
+    Object.keys(agg).length ? h("section", { class: "card stack", style: "gap:12px" }, h("h3", {}, "Onde a turma mais erra"), h("div", { class: "topics" }, topicRows(agg))) : null,
+    students.length ? h("section", { class: "card stack", style: "gap:8px" }, h("h3", {}, "Alunos"), h("p", { class: "muted", style: "font-size:.9rem" }, "Toque no nome para ver o histórico completo."),
+      h("div", { class: "scroll" }, h("table", { class: "hist" },
+        h("thead", {}, h("tr", {}, ["Aluno", "Simulados", "Média", "Última", "Melhor", "Ponto fraco", "Atualizado"].map((c) => h("th", {}, c)))),
+        h("tbody", {}, students.map((s) => h("tr", {},
+          h("td", {}, h("button", { class: "linkbtn", "data-raw": true, onclick: () => screenAdmin(s.id) }, s.name)), h("td", {}, s.n), h("td", {}, s.avg + "%"),
+          h("td", {}, h("span", { class: "pill " + (s.last >= PASS * 100 ? "ok" : "bad"), style: "font-size:.8rem;padding:2px 10px" }, s.last + "%")),
+          h("td", {}, s.best + "%"), h("td", {}, s.weakest), h("td", {}, fmtDate(Date.parse(s.at))))))))) : null));
+}
+</script>
+<script>
+/* ---------- conta Google (Supabase Auth): histórico na nuvem e uso em vários aparelhos ----------
+   Fluxo: botão → página do Google → volta para o site com os tokens no endereço (#access_token=...).
+   O perfil fica em perfis.dados (só o dono lê e grava). Excluir conta apaga tudo em cascata no banco. */
+const GOOGLE_ID = "google";
+const siteHome = () => location.origin + location.pathname;
+let gTimer = null, gBusy = false, gDirty = false;
+
+const session = () => store.session || null;
+function googleLogin(intent = "aluno") {
+  store.authIntent = intent; save();
+  location.href = `${SUPA.url}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(siteHome())}`;
+}
+
+/* lê os tokens que o Supabase devolve no endereço depois do login */
+async function handleAuthRedirect() {
+  const hs = new URLSearchParams(location.hash.slice(1));
+  if (!hs.has("access_token") && !hs.has("error")) return null;
+  history.replaceState(null, "", location.pathname + location.search);
+  const intent = store.authIntent || "aluno"; delete store.authIntent;
+  if (hs.has("error")) { save(); return { intent, error: hs.get("error_description") || hs.get("error") }; }
+  const tok = { access_token: hs.get("access_token"), refresh_token: hs.get("refresh_token"), expires_at: Math.floor(Date.now() / 1000) + Number(hs.get("expires_in") || 3600) };
+  try {
+    const res = await fetch(SUPA.url + "/auth/v1/user", { headers: supaHeaders(tok.access_token) });
+    const u = await res.json();
+    if (!res.ok || !u.id) throw 0;
+    const md = u.user_metadata || {};
+    store.session = { ...tok, user: { id: u.id, email: u.email || "", name: (md.full_name || md.name || u.email || "").slice(0, 40) } };
+    save();
+    return { intent };
+  } catch { save(); return { intent, error: tr("Não foi possível concluir o login com Google.") }; }
+}
+
+async function accessToken() {
+  const s = session(); if (!s) return null;
+  if (s.expires_at - 60 > Date.now() / 1000) return s.access_token;
+  try {
+    const res = await fetch(SUPA.url + "/auth/v1/token?grant_type=refresh_token", { method: "POST", headers: supaHeaders(), body: JSON.stringify({ refresh_token: s.refresh_token }) });
+    const j = await res.json();
+    if (!res.ok || !j.access_token) throw 0;
+    Object.assign(s, { access_token: j.access_token, refresh_token: j.refresh_token, expires_at: Math.floor(Date.now() / 1000) + (j.expires_in || 3600) });
+    save(); return s.access_token;
+  } catch { return null; }
+}
+async function gApi(path, opts = {}) {
+  const tk = await accessToken(); if (!tk) throw new Error("sem sessão");
+  return fetch(SUPA.url + path, { ...opts, headers: { ...supaHeaders(tk), ...(opts.headers || {}) } });
+}
+
+/* abre (ou cria) o perfil da nuvem depois do login */
+async function googleOpenProfile() {
+  const s = session(); if (!s) return screenProfiles();
+  let row = null;
+  try { const r = await gApi(`/rest/v1/perfis?user_id=eq.${s.user.id}&select=nome,dados,atualizado`); row = (await r.json())[0] || null; }
+  catch { return screenProfiles(tr("Não foi possível abrir sua conta agora. Tente de novo.")); }
+  if (row) {
+    store.profiles[GOOGLE_ID] = { ...newProfile(row.nome), ...row.dados, name: row.nome, google: true, syncedAt: Date.parse(row.atualizado) };
+    store.current = GOOGLE_ID; save(); return screenHome();
+  }
+  const locals = Object.entries(store.profiles).filter(([id, p]) => id !== GOOGLE_ID && id !== CLOUD_ID && p.attempts?.length);
+  if (!locals.length) return createCloudProfile(null);
+  screenImport(locals);
+}
+function screenImport(locals) {
+  screen(() => screenImport(locals));
+  app.replaceChildren(h("div", { class: "stack" },
+    h("h1", {}, "Levar seu histórico para a conta?"),
+    h("p", { class: "muted" }, "Encontramos usuários salvos neste aparelho. Escolha um para levar o histórico para a sua conta Google, ou comece do zero."),
+    h("div", { class: "profiles" }, locals.map(([id, p]) => h("button", { class: "profile", onclick: () => createCloudProfile(id) },
+      h("span", { class: "avatar", "aria-hidden": "true" }, initials(p.name)),
+      h("div", {}, h("b", { "data-raw": true }, p.name), h("small", {}, t(p.attempts.length > 1 ? "{n} simulados · última nota {p}%" : "{n} simulado · última nota {p}%", { n: p.attempts.length, p: p.attempts.at(-1).pct }))),
+      iconEl("arrow")))),
+    h("button", { class: "btn", onclick: () => createCloudProfile(null) }, "Começar do zero")));
+}
+async function createCloudProfile(fromId) {
+  const s = session();
+  const base = fromId ? JSON.parse(JSON.stringify(store.profiles[fromId])) : newProfile(s.user.name || "Aluno");
+  const p = { ...base, name: s.user.name || base.name, google: true };
+  delete p.cloud;
+  store.profiles[GOOGLE_ID] = p; store.current = GOOGLE_ID;
+  if (fromId) delete store.profiles[fromId];
+  save(); await googleFlush(true); screenHome();
+}
+
+/* gravação: agrupa mudanças e manda o perfil inteiro no máximo a cada 3 s */
+function googleOnSave() {
+  if (store.current !== GOOGLE_ID || !session()) return;
+  gDirty = true; clearTimeout(gTimer); gTimer = setTimeout(googleFlush, 3000);
+}
+async function googleFlush(force = false) {
+  const p = store.profiles[GOOGLE_ID], s = session();
+  if (!p || !s || (!gDirty && !force)) return;
+  if (gBusy) { gTimer = setTimeout(googleFlush, 1500); return; }
+  gBusy = true; gDirty = false;
+  const dados = JSON.parse(JSON.stringify(p)); delete dados.google; delete dados.syncedAt;
+  dados.attempts = (dados.attempts || []).slice(-300);
+  try {
+    const r = await gApi("/rest/v1/perfis?on_conflict=user_id", { method: "POST", headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
+      body: JSON.stringify({ user_id: s.user.id, nome: p.name.slice(0, 40), dados, atualizado: new Date().toISOString() }) });
+    if (!r.ok) throw 0;
+    p.syncedAt = Date.now(); try { localStorage.setItem(LS_KEY, JSON.stringify(store)); } catch {}
+    setSync("Sincronizado");
+  } catch { gDirty = true; setSync("Não sincronizou; tentaremos de novo"); }
+  gBusy = false;
+}
+addEventListener("online", () => googleFlush());
+
+/* ao abrir o app já logado: traz a versão mais nova da nuvem (outro aparelho pode ter usado) */
+async function googlePull() {
+  const s = session(), p = store.profiles[GOOGLE_ID];
+  if (!s || !p || store.current !== GOOGLE_ID || run) return false;
+  try {
+    const r = await gApi(`/rest/v1/perfis?user_id=eq.${s.user.id}&select=nome,dados,atualizado`);
+    const row = (await r.json())[0];
+    if (row && Date.parse(row.atualizado) > (p.syncedAt || 0) + 1000) {
+      store.profiles[GOOGLE_ID] = { ...newProfile(row.nome), ...row.dados, name: row.nome, google: true, syncedAt: Date.parse(row.atualizado) };
+      try { localStorage.setItem(LS_KEY, JSON.stringify(store)); } catch {}
+      return true;
+    }
+  } catch {}
+  return false;
+}
+
+async function googleLogout() {
+  const tk = await accessToken().catch(() => null);
+  if (tk) fetch(SUPA.url + "/auth/v1/logout", { method: "POST", headers: supaHeaders(tk) }).catch(() => {});
+  delete store.session; delete store.profiles[GOOGLE_ID];
+  if (store.current === GOOGLE_ID) store.current = null;
+  if (ADMIN?.google) ADMIN = null;
+  save(); screenProfiles();
+}
+async function googleDeleteAccount() {
+  const r = await gApi("/rest/v1/rpc/excluir_minha_conta", { method: "POST", body: "{}" });
+  if (!r.ok) throw new Error("falhou");
+  delete store.session; delete store.profiles[GOOGLE_ID]; store.current = null;
+  store.outbox = (store.outbox || []).filter((x) => !x.user_id);
+  save();
+}
+
+/* cartão de conta na tela de usuários */
+function googleCard() {
+  if (!supaOn()) return null;
+  const s = session();
+  const gBtn = (label, fn) => h("button", { class: "btn gbtn", onclick: fn },
+    h("span", { "aria-hidden": "true", html: '<svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.6l6.7-6.7C35.6 2.4 30.2 0 24 0 14.6 0 6.6 5.4 2.7 13.2l7.8 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4 7.1-10 7.1-17.5z"/><path fill="#FBBC05" d="M10.5 28.7c-.5-1.4-.8-3-.8-4.7s.3-3.3.8-4.7l-7.8-6.1C1 16.6 0 20.2 0 24s1 7.4 2.7 10.8l7.8-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.8 2.3-8.4 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.8 6.1C6.6 42.6 14.6 48 24 48z"/></svg>', style: "display:inline-flex" }), label);
+  if (s) return h("section", { class: "card stack", style: "gap:10px;border-color:var(--accent)" },
+    h("h3", {}, "Sua conta Google"),
+    h("p", { class: "muted", "data-raw": true }, `${s.user.name} · ${s.user.email}`),
+    h("div", { class: "row" },
+      h("button", { class: "btn primary", onclick: () => googleOpenProfile() }, "Continuar com esta conta"),
+      h("button", { class: "btn ghost", onclick: googleLogout }, "Sair da conta")));
+  return h("section", { class: "card stack", style: "gap:10px;border-color:var(--accent)" },
+    h("h3", {}, "Entrar com Google"),
+    h("p", { class: "muted" }, "Seu histórico fica salvo na nuvem e você continua de qualquer aparelho: celular, tablet ou computador. Dá para excluir a conta quando quiser."),
+    gBtn("Entrar com Google", () => googleLogin("aluno")));
+}
+
+/* aviso na tela inicial para quem usa usuário só do aparelho */
+function localNotice(p) {
+  if (!supaOn() || p.google || p.cloud || !p.attempts.length) return null;
+  return h("section", { class: "install stack", style: "gap:8px" },
+    h("b", {}, "Seu histórico está só neste aparelho"),
+    h("span", { class: "muted", style: "font-size:.92rem" }, "Se trocar de celular ou limpar os dados do navegador, ele se perde. Entre com Google para guardar na nuvem e levar este histórico junto."),
+    h("div", { class: "row" }, h("button", { class: "btn primary", onclick: () => googleLogin("aluno") }, "Entrar com Google")));
 }
 </script>
 <script>
@@ -1174,7 +1517,7 @@ function newProfile(name) { return { name, created: Date.now(), last: Date.now()
 function screenProfiles(err = "") {
   screen(() => screenProfiles());
   run = null; stopTimer(); setChip();
-  const list = Object.entries(store.profiles).filter(([id]) => id !== CLOUD_ID || CLOUD.ready).sort((a, b) => (b[1].last || 0) - (a[1].last || 0));
+  const list = Object.entries(store.profiles).filter(([id]) => id !== GOOGLE_ID && (id !== CLOUD_ID || CLOUD.ready)).sort((a, b) => (b[1].last || 0) - (a[1].last || 0));
   const input = h("input", { type: "text", id: "newName", maxlength: "40", placeholder: "Seu nome ou apelido", autocomplete: "off" });
   const errEl = h("p", { class: "err", role: "alert" }, err);
   input.addEventListener("input", () => (errEl.textContent = ""));
@@ -1218,12 +1561,15 @@ function screenProfiles(err = "") {
         h("div", {}, h("b", { "data-raw": true }, p.name + (id === CLOUD_ID ? " · " + tr("conta Claude") : "")), h("small", {}, p.attempts.length ? t(p.attempts.length > 1 ? "{n} simulados · última nota {p}%" : "{n} simulado · última nota {p}%", { n: p.attempts.length, p: p.attempts.at(-1).pct }) : "Nenhum simulado ainda")),
         iconEl("arrow"))))) : null,
     cloudCard,
+    googleCard(),
     h("form", { class: "card stack", style: "gap:12px", onsubmit: create },
       h("h3", {}, list.length ? "Novo usuário neste aparelho" : "Criar usuário neste aparelho"),
       h("label", { for: "newName", class: "muted", style: "font-size:.9rem" }, "Nome"),
       input, errEl,
       h("button", { class: "btn" + (cloudCard ? "" : " primary"), type: "submit" }, "Criar e continuar")),
-    h("p", { class: "muted", style: "font-size:.85rem" }, "Usuário criado neste aparelho fica salvo só neste navegador.")));
+    h("p", { class: supaOn() ? "tip" : "muted", style: "font-size:.88rem" }, supaOn() ? "Atenção: o usuário criado neste aparelho fica salvo só neste navegador. Se trocar de aparelho ou limpar os dados do navegador, o histórico se perde. Para guardar na nuvem, entre com Google." : "Usuário criado neste aparelho fica salvo só neste navegador."),
+    supaOn() ? h("p", { class: "muted", style: "font-size:.85rem" }, "Ao terminar cada simulado, seu nome e sua nota são enviados ao instrutor.") : null,
+    supaOn() ? h("button", { class: "btn ghost", style: "align-self:flex-start", onclick: () => screenAdminLogin() }, "Área do instrutor") : null));
 }
 
 function setChip() {
@@ -1294,10 +1640,11 @@ function screenHome() {
   const seenN = Object.keys(p.seen || {}).filter((id) => QMAP[id]).length;
   app.replaceChildren(h("div", { class: "stack" },
     installBanner(),
+    localNotice(p),
     h("div", { class: "stack", style: "gap:6px" },
       h("p", { class: "eyebrow" }, hasHist ? "Bem-vindo de volta" : "Primeiro simulado"),
       h("h1", { "data-raw": true }, t("Olá, {n}", { n: p.name.split(" ")[0] })),
-      p.cloud ? h("p", { class: "muted", style: "font-size:.85rem" }, "Conta Claude · ", h("span", { id: "syncNote" }, "Sincronizado")) : null),
+      p.cloud || p.google ? h("p", { class: "muted", style: "font-size:.85rem" }, p.google ? "Conta Google · " : "Conta Claude · ", h("span", { id: "syncNote" }, "Sincronizado")) : null),
     saved ? h("section", { class: "confirm stack", style: "gap:10px" },
       h("b", {}, t("Você tem um simulado em andamento: {a} de {b} respondidas.", { a: saved.items.filter((i) => i.pick != null).length, b: saved.items.length })),
       h("div", { class: "row" },
@@ -1311,7 +1658,8 @@ function screenHome() {
     h("div", { class: "row" },
       hasHist ? h("button", { class: "btn", onclick: screenHistory }, "Meu histórico") : null,
       h("button", { class: "btn ghost", onclick: () => screenTutorial(0, screenHome) }, "Como usar"),
-      CLOUD.ready && CLOUD.canEdit ? h("button", { class: "btn", onclick: screenInstructor }, "Painel do instrutor") : null)));
+      CLOUD.ready && CLOUD.canEdit ? h("button", { class: "btn", onclick: screenInstructor }, "Painel do instrutor") : null,
+      supaOn() ? h("button", { class: "btn ghost", onclick: () => screenAdminLogin() }, "Área do instrutor") : null)));
 }
 
 function start(n, mode, opts) {
@@ -1450,6 +1798,7 @@ function finish(timeUp) {
   p.attempts.push(attempt); delete p.running; p.last = Date.now();
   run.done = true; run.result = attempt; run.prev = prev;
   save();
+  queueResult(p, attempt);
   if (p.cloud) cloudPushSummary();
   screenResult();
 }
@@ -1566,12 +1915,17 @@ function screenHistory(confirm = null) {
   screen(() => screenHistory(confirm));
   const p = me(); const ts = topicStats(p); const sp = spark(p.attempts);
   const danger = confirm ? h("section", { class: "confirm stack", style: "gap:10px" },
-    h("b", { "data-raw": true }, confirm === "reset" ? t("Zerar o histórico de {n}? Notas, questões vistas e fila de revisão serão apagadas. Não dá para desfazer.", { n: p.name }) : t("Apagar o usuário {n} e todo o histórico dele? Não dá para desfazer.", { n: p.name })),
+    h("b", { "data-raw": true }, confirm === "gdelete" ? tr("Excluir sua conta? Seu histórico na nuvem e seus resultados serão apagados para sempre. Não dá para desfazer.") : confirm === "reset" ? t("Zerar o histórico de {n}? Notas, questões vistas e fila de revisão serão apagadas. Não dá para desfazer.", { n: p.name }) : t("Apagar o usuário {n} e todo o histórico dele? Não dá para desfazer.", { n: p.name })),
     h("div", { class: "row" },
-      h("button", { class: "btn danger", onclick: async () => {
+      h("button", { class: "btn danger", onclick: async (e) => {
+        if (confirm === "gdelete") {
+          e.target.disabled = true;
+          try { await googleDeleteAccount(); screenProfiles(); } catch { e.target.disabled = false; e.target.textContent = tr("Não foi possível excluir agora. Tente de novo."); }
+          return;
+        }
         if (confirm === "reset") { Object.assign(p, { attempts: [], seen: {}, review: {}, cards: {} }); delete p.running; save(); if (p.cloud) cloudPushSummary(); screenHome(); }
         else { if (p.cloud) await cloudDeleteProfile(); delete store.profiles[store.current]; store.current = null; save(); screenProfiles(); }
-      } }, confirm === "reset" ? "Zerar histórico" : "Apagar usuário"),
+      } }, confirm === "gdelete" ? "Excluir minha conta" : confirm === "reset" ? "Zerar histórico" : "Apagar usuário"),
       h("button", { class: "btn ghost", onclick: () => screenHistory() }, "Cancelar"))) : null;
   app.replaceChildren(h("div", { class: "stack" },
     h("div", { class: "row", style: "justify-content:space-between" }, h("h1", {}, "Meu histórico"), h("button", { class: "btn", onclick: screenHome }, iconEl("back"), "Início")),
@@ -1584,9 +1938,14 @@ function screenHistory(confirm = null) {
           h("td", {}, fmtDate(a.at)), h("td", {}, a.topic || "Completa"), h("td", {}, `${a.correct}/${a.n}`), h("td", { style: "font-weight:600" }, a.pct + "%"), h("td", {}, fmtTime(a.secs)),
           h("td", {}, h("span", { class: "pill " + (a.pct >= 50 ? "ok" : "bad"), style: "font-size:.8rem;padding:2px 10px" }, a.pct >= 50 ? "Aprovado" : "Reprovado")))))))) : h("p", { class: "card muted" }, "Nenhum simulado ainda."),
     h("section", { class: "card stack", style: "gap:10px" }, h("h3", {}, "Gerenciar usuário"),
-      danger || h("div", { class: "row" },
+      p.google ? h("p", { class: "muted", "data-raw": true }, session() ? `${tr("Conta Google")}: ${session().user.email}` : tr("Conta Google")) : null,
+      danger || (p.google ? h("div", { class: "row" },
         h("button", { class: "btn", onclick: () => screenHistory("reset") }, "Zerar histórico"),
-        h("button", { class: "btn danger-outline", onclick: () => screenHistory("delete") }, "Apagar usuário")))));
+        h("button", { class: "btn", onclick: googleLogout }, "Sair da conta"),
+        h("button", { class: "btn danger-outline", onclick: () => screenHistory("gdelete") }, "Excluir minha conta"))
+      : h("div", { class: "row" },
+        h("button", { class: "btn", onclick: () => screenHistory("reset") }, "Zerar histórico"),
+        h("button", { class: "btn danger-outline", onclick: () => screenHistory("delete") }, "Apagar usuário"))))));
   window.scrollTo({ top: 0 });
 }
 
@@ -1606,7 +1965,12 @@ async function boot() {
   BANK_PT = BANK; CARDS_PT = CARDS;
   try { applyLangData(LANG === "pt" ? {} : await loadLangData(LANG)); } catch { LANG = "pt"; applyLangData({}); }
   paintStatic();
-  startScreen();
+  const auth = supaOn() ? await handleAuthRedirect() : null;
+  if (auth?.error) auth.intent === "admin" ? screenAdminLogin(auth.error) : screenProfiles(auth.error);
+  else if (auth?.intent === "admin") await adminFromSession();
+  else if (auth) await googleOpenProfile();
+  else { startScreen(); if (supaOn() && await googlePull() && !run && document.querySelector(".seg3")) screenHome(); }
+  flushOutbox();
   await cloudInit();
   if (CLOUD.ready) {
     if (store.current === CLOUD_ID) { try { await cloudOpen(store.profiles[CLOUD_ID]?.name || CLOUD.name); screenHome(); } catch { screenProfiles(); } }
